@@ -1,0 +1,16 @@
+[package]
+name = "jelly-fpga-server"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+prost = "0.13.1"
+tokio = { version = "1.42.0", features = ["macros", "rt-multi-thread"] }
+tonic = "0.12.3"
+once_cell = "1.13.1"
+#jelly-uidmng = {git="https://github.com/ryuz/jelly-uidmng.git", tag="v0.0.3"}
+#jelly-fpgautil = {git="https://github.com/ryuz/jelly-fpgautil.git"}
+jelly-fpgautil = { path="../jelly-fpgautil" }
+
+[build-dependencies]
+tonic-build = "0.12.3"

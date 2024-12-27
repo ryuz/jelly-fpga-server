@@ -1,0 +1,53 @@
+syntax = "proto3";
+package fpga_control;
+
+service FpgaControl {
+    rpc Reset ( ResetRequest ) returns (BoolResponse);
+
+    rpc Load ( LoadRequest ) returns (LoadResponse);
+    rpc Unload ( UnloadRequest ) returns (BoolResponse);
+
+    rpc OpenUio (OpenUioRequest) returns (OpenResponse);
+    rpc Close (CloseRequest) returns (BoolResponse);
+
+}
+
+
+message Empty {
+}
+
+message BoolResponse {
+    bool result = 1;
+}
+
+
+message ResetRequest {
+}
+
+message LoadRequest {
+    string name = 1;
+}
+
+message LoadResponse {
+    bool result = 1;
+    int32 slot = 2;
+}
+
+message UnloadRequest {
+    int32 slot = 1;
+}
+
+
+message OpenUioRequest {
+    string name = 1;
+}
+
+message OpenResponse {
+    bool  result = 1;
+    int32 id = 2;
+}
+
+message CloseRequest {
+    int32 id = 1;
+}
+
