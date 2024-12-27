@@ -37,7 +37,7 @@ static FPGA_CTL: Lazy<Mutex<FpgaManager>> = Lazy::new(|| Mutex::new(FpgaManager:
 #[tonic::async_trait]
 impl FpgaControl for FpgaControlService {
 
-    async fn reset(&self, request: Request<ResetRequest>) -> Result<Response<BoolResponse>, Status> {
+    async fn reset(&self, _request: Request<ResetRequest>) -> Result<Response<BoolResponse>, Status> {
 //      let req = request.into_inner();
         if self.verbose >= 1 { println!("reset"); }
         Ok(Response::new(BoolResponse { result: true }))
@@ -61,6 +61,29 @@ impl FpgaControl for FpgaControlService {
         let result = fpgautil::unload(req.slot);
         Ok(Response::new(BoolResponse { result: result.is_ok() }))
     }
+
+    async fn write_to_firmware(&self, request: Request<WriteToFirmwareRequest>) -> Result<Response<BoolResponse>, Status> {
+        let req = request.into_inner();
+        if self.verbose >= 1 { println!("write_to_firmware : {}", req.name); }
+        let result = fpgautil::write_to_firmware(&req.name, &req.data);
+        Ok(Response::new(BoolResponse { result: result.is_ok() }))
+    }
+
+    async fn load_bitstream(&self, request: Request<LoadBitstreamRequest>) -> Result<Response<BoolResponse>, Status> {
+        let req = request.into_inner();
+        if self.verbose >= 1 { println!("load_bitstream : {}", req.bitstream.len()); }
+        let result = fpgautil::load_bitstream_with_vec(&req.bitstream);
+        Ok(Response::new(BoolResponse { result: result.is_ok() }))
+    }
+
+    async fn load_dtbo(&self, request: Request<LoadDtboRequest>) -> Result<Response<BoolResponse>, Status> {
+        let req = request.into_inner();
+        if self.verbose >= 1 { println!("load_bitstream : {}", req.dtbo.len()); }
+        let result = fpgautil::load_dtb_with_vec(&req.dtbo);
+        Ok(Response::new(BoolResponse { result: result.is_ok() }))
+    }
+
+
 
     async fn open_uio(&self, request: Request<OpenUioRequest>) -> Result<Response<OpenResponse>, Status> {
         let req = request.into_inner();

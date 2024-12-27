@@ -7,6 +7,10 @@ service FpgaControl {
     rpc Load ( LoadRequest ) returns (LoadResponse);
     rpc Unload ( UnloadRequest ) returns (BoolResponse);
 
+    rpc WriteToFirmware ( WriteToFirmwareRequest ) returns (BoolResponse);
+    rpc LoadBitstream ( LoadBitstreamRequest ) returns (BoolResponse);
+    rpc LoadDtbo ( LoadDtboRequest ) returns (BoolResponse);
+
     rpc OpenUio (OpenUioRequest) returns (OpenResponse);
     rpc Close (CloseRequest) returns (BoolResponse);
 
@@ -37,6 +41,21 @@ message UnloadRequest {
     int32 slot = 1;
 }
 
+message WriteToFirmwareRequest {
+    string name = 1;
+    bytes data = 2;
+}
+
+message LoadBitstreamRequest {
+    bytes bitstream = 1;
+}
+
+message LoadDtboRequest {
+    bytes dtbo = 1;
+}
+
+
+///////////////
 
 message OpenUioRequest {
     string name = 1;
