@@ -11,6 +11,8 @@ service FpgaControl {
     rpc LoadBitstream ( LoadBitstreamRequest ) returns (BoolResponse);
     rpc LoadDtbo ( LoadDtboRequest ) returns (BoolResponse);
 
+    rpc DtsToDtb ( DtsToDtbRequest ) returns (DtsToDtbResponse);
+
     rpc OpenUio (OpenUioRequest) returns (OpenResponse);
     rpc Close (CloseRequest) returns (BoolResponse);
 }
@@ -50,6 +52,16 @@ message LoadBitstreamRequest {
 
 message LoadDtboRequest {
     string name = 1;
+}
+
+
+message DtsToDtbRequest {
+    string dts = 1;
+}
+
+message DtsToDtbResponse {
+    bool result = 1;
+    bytes dtb = 2;
 }
 
 

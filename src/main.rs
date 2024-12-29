@@ -1,7 +1,7 @@
 use fpga_control::fpga_control_server::*;
 use fpga_control::*;
-use tokio::fs::File;
-use tokio::io::AsyncWriteExt;
+//use tokio::fs::File;
+//use tokio::io::AsyncWriteExt;
 use tokio_stream::StreamExt;
 use tonic::{transport::Server, Request, Response, Status, Streaming};
 
@@ -11,6 +11,8 @@ use jelly_uidmng as uidmng;
 pub mod fpga_control {
     tonic::include_proto!("fpga_control");
 }
+
+mod accessor;
 
 #[derive(Debug, Default)]
 pub struct FpgaControlService {
@@ -38,7 +40,6 @@ impl FpgaControl for FpgaControlService {
         &self,
         _request: Request<ResetRequest>,
     ) -> Result<Response<BoolResponse>, Status> {
-        //      let req = request.into_inner();
         if self.verbose >= 1 {
             println!("reset");
         }
@@ -130,6 +131,30 @@ impl FpgaControl for FpgaControlService {
         }))
     }
 
+    async fn dts_to_dtb(
+        &self,
+        request: Request<DtsToDtbRequest>,
+    ) -> Result<Response<DtsToDtbResponse>, Status> {
+        let req = request.into_inner();
+        if self.verbose >= 1 {
+            println!("dts_to_dtb");
+        }
+        let result = fpgautil::dtc_with_str(&req.dts);
+        match result {
+            Ok(dtb) => Ok(Response::new(DtsToDtbResponse {
+                result: true,
+                dtb: dtb,
+            })),
+            Err(e) => {
+                println!("Error:{}", e);
+                Ok(Response::new(DtsToDtbResponse {
+                    result: false,
+                    dtb: [].to_vec(),
+                }))
+            }
+        }
+    }
+
     async fn open_uio(
         &self,
         request: Request<OpenUioRequest>,
@@ -162,7 +187,6 @@ impl FpgaControl for FpgaControlService {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     fpgautil::set_allow_sudo(true);
-    //    FPGA_CTL.lock().unwrap().open()?;
 
     let address = "0.0.0.0:50051".parse().unwrap();
     let mut fpga_contro_service = FpgaControlService::default();
@@ -172,7 +196,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .add_service(FpgaControlServer::new(fpga_contro_service))
         .serve(address)
         .await?;
-    //   FPGA_CTL.lock().unwrap().close();
 
     Ok(())
 }
