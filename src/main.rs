@@ -42,7 +42,6 @@ impl FpgaControl for FpgaControlService {
         if self.verbose >= 1 {
             println!("reset");
         }
-        println!("reset");
         Ok(Response::new(BoolResponse { result: true }))
     }
 
@@ -109,9 +108,9 @@ impl FpgaControl for FpgaControlService {
     ) -> Result<Response<BoolResponse>, Status> {
         let req = request.into_inner();
         if self.verbose >= 1 {
-            println!("load_bitstream : {}", req.bitstream.len());
+            println!("load_bitstream : {}", req.name);
         }
-        let result = fpgautil::load_bitstream_with_vec(&req.bitstream);
+        let result = fpgautil::load_bitstream_from_firmware(&req.name);
         Ok(Response::new(BoolResponse {
             result: result.is_ok(),
         }))
@@ -123,9 +122,9 @@ impl FpgaControl for FpgaControlService {
     ) -> Result<Response<BoolResponse>, Status> {
         let req = request.into_inner();
         if self.verbose >= 1 {
-            println!("load_bitstream : {}", req.dtbo.len());
+            println!("load_dtbo : {}", req.name);
         }
-        let result = fpgautil::load_dtb_with_vec(&req.dtbo);
+        let result = fpgautil::load_dtbo_from_firmware(&req.name);
         Ok(Response::new(BoolResponse {
             result: result.is_ok(),
         }))

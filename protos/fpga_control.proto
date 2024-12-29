@@ -13,7 +13,6 @@ service FpgaControl {
 
     rpc OpenUio (OpenUioRequest) returns (OpenResponse);
     rpc Close (CloseRequest) returns (BoolResponse);
-
 }
 
 
@@ -23,7 +22,6 @@ message Empty {
 message BoolResponse {
     bool result = 1;
 }
-
 
 message ResetRequest {
 }
@@ -47,11 +45,11 @@ message UploadFirmwareRequest {
 }
 
 message LoadBitstreamRequest {
-    bytes bitstream = 1;
+    string name = 1;
 }
 
 message LoadDtboRequest {
-    bytes dtbo = 1;
+    string name = 1;
 }
 
 
