@@ -2,7 +2,7 @@
 
 use fpga_control::*;
 use fpga_control::fpga_control_server::*;
-use tonic::{transport::Server, Request, Response, Status};
+use tonic::{transport::Server, Request, Streaming, Response, Status};
 
 use jelly_fpgautil as fpgautil;
 
@@ -62,11 +62,22 @@ impl FpgaControl for FpgaControlService {
         Ok(Response::new(BoolResponse { result: result.is_ok() }))
     }
 
-    async fn write_to_firmware(&self, request: Request<WriteToFirmwareRequest>) -> Result<Response<BoolResponse>, Status> {
-        let req = request.into_inner();
-        if self.verbose >= 1 { println!("write_to_firmware : {}", req.name); }
-        let result = fpgautil::write_to_firmware(&req.name, &req.data);
-        Ok(Response::new(BoolResponse { result: result.is_ok() }))
+    async fn upload_firmware(&self, request: Request<Streaming<UploadFirmwareRequest>>) -> Result<Response<BoolResponse>, Status> {
+        let mut stream = request.into_inner();
+//        if self.verbose >= 1 { println!("write_to_firmware : {}", req.name); }
+//        let result = fpgautil::write_to_firmware(&req.name, &req.data);
+ 
+        let first_message = stream.message().await?;
+        let file_name = if let Some(msg) = first_message {
+            if msg.name.is_empty() {
+                return Err(Status::invalid_argument("File name is missing"));
+            }
+            msg.name
+        } else {
+            return Err(Status::invalid_argument("Stream ended unexpectedly"));
+        };
+ 
+        Ok(Response::new(BoolResponse { result: true }))
     }
 
     async fn load_bitstream(&self, request: Request<LoadBitstreamRequest>) -> Result<Response<BoolResponse>, Status> {

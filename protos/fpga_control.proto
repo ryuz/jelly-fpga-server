@@ -7,7 +7,7 @@ service FpgaControl {
     rpc Load ( LoadRequest ) returns (LoadResponse);
     rpc Unload ( UnloadRequest ) returns (BoolResponse);
 
-    rpc WriteToFirmware ( WriteToFirmwareRequest ) returns (BoolResponse);
+    rpc UploadFirmware ( stream UploadFirmwareRequest ) returns (BoolResponse);
     rpc LoadBitstream ( LoadBitstreamRequest ) returns (BoolResponse);
     rpc LoadDtbo ( LoadDtboRequest ) returns (BoolResponse);
 
@@ -41,7 +41,7 @@ message UnloadRequest {
     int32 slot = 1;
 }
 
-message WriteToFirmwareRequest {
+message UploadFirmwareRequest {
     string name = 1;
     bytes data = 2;
 }
