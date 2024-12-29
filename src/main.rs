@@ -2,11 +2,11 @@ use fpga_control::fpga_control_server::*;
 use fpga_control::*;
 use tokio::fs::File;
 use tokio::io::AsyncWriteExt;
-use tonic::{transport::Server, Request, Response, Status, Streaming};
 use tokio_stream::StreamExt;
+use tonic::{transport::Server, Request, Response, Status, Streaming};
 
-use jelly_uidmng as uidmng;
 use jelly_fpgautil as fpgautil;
+use jelly_uidmng as uidmng;
 
 pub mod fpga_control {
     tonic::include_proto!("fpga_control");
@@ -84,25 +84,25 @@ impl FpgaControl for FpgaControlService {
         request: Request<Streaming<UploadFirmwareRequest>>,
     ) -> Result<Response<BoolResponse>, Status> {
         let mut stream = request.into_inner();
-        
+
         let mut first = true;
         while let Some(msg) = stream.next().await {
             let msg = msg?;
             let name = format!("/lib/firmware/{}", msg.name);
-            if let Err(e) = if first { uidmng::write_sudo(&name, &msg.data) } else {
+            if let Err(e) = if first {
+                uidmng::write_sudo(&name, &msg.data)
+            } else {
                 uidmng::append_sudo(&name, &msg.data)
             } {
                 println!("Error:{}", e);
                 return Ok(Response::new(BoolResponse { result: false }));
             }
             first = false;
-            print!(".");
         }
-        print!("\n");
 
         Ok(Response::new(BoolResponse { result: true }))
     }
-    
+
     async fn load_bitstream(
         &self,
         request: Request<LoadBitstreamRequest>,
