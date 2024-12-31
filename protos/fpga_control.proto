@@ -16,6 +16,8 @@ service FpgaControl {
     rpc OpenMmap (OpenMmapRequest) returns (OpenResponse);
     rpc OpenUio (OpenUioRequest) returns (OpenResponse);
     rpc Close (CloseRequest) returns (BoolResponse);
+
+    rpc WriteMemU64 (WriteMemU64Request) returns (BoolResponse);
 }
 
 
@@ -89,3 +91,8 @@ message CloseRequest {
     uint32 id = 1;
 }
 
+message WriteMemU64Request {
+    uint32 id = 1;
+    uint64 addr = 2;
+    uint64 data = 3;
+}

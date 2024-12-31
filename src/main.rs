@@ -33,6 +33,8 @@ impl FpgaControl for FpgaControlService {
         if self.verbose >= 1 {
             println!("reset");
         }
+        let mut accessor = self.accessor.write().await;
+        accessor.close_all();
         Ok(Response::new(BoolResponse { result: true }))
     }
 
@@ -199,6 +201,20 @@ impl FpgaControl for FpgaControlService {
         }
         let mut accessor = self.accessor.write().await;
         let result = accessor.close(req.id as accessor::Id);
+        Ok(Response::new(BoolResponse { result: result.is_ok() }))
+    }
+
+
+    async fn write_mem_u64(
+        &self,
+        request: Request<WriteMemU64Request>,
+    ) -> Result<Response<BoolResponse>, Status> {
+        let req = request.into_inner();
+        if self.verbose >= 1 {
+            println!("write_mem_u64:{}", req.id);
+        }
+        let mut accessor = self.accessor.write().await;
+        let result = accessor.write_mem_u64(req.id as accessor::Id, req.addr as usize, req.data);
         Ok(Response::new(BoolResponse { result: result.is_ok() }))
     }
 }
