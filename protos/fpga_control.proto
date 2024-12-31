@@ -12,6 +12,7 @@ service FpgaControl {
     rpc LoadDtbo       ( LoadDtboRequest ) returns (BoolResponse);
 
     rpc DtsToDtb ( DtsToDtbRequest ) returns (DtsToDtbResponse);
+    rpc BitstreamToBin ( BitstreamToBinRequest ) returns (BoolResponse);
 
     rpc OpenMmap (OpenMmapRequest) returns (OpenResponse);
     rpc OpenUio (OpenUioRequest) returns (OpenResponse);
@@ -72,6 +73,12 @@ message DtsToDtbRequest {
 message DtsToDtbResponse {
     bool result = 1;
     bytes dtb = 2;
+}
+
+message BitstreamToBinRequest {
+    string bitstream_name = 1;
+    string bin_name = 2;
+    string arch = 3;
 }
 
 

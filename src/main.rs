@@ -145,6 +145,22 @@ impl FpgaControl for FpgaControlService {
             }
         }
     }
+    
+    async fn bitstream_to_bin(
+        &self,
+        request: Request<BitstreamToBinRequest>,
+    ) -> Result<Response<BoolResponse>, Status> {
+        let req = request.into_inner();
+        if self.verbose >= 1 {
+            println!("bitstream_to_bin");
+        }
+        let bit_path = format!("/lib/firmware/{}", req.bitstream_name);
+        let bin_path = format!("/lib/firmware/{}", req.bin_name);
+        let result = fpgautil::xlnx_bitstream_to_bin(&bit_path, &bin_path, &req.arch);
+        Ok(Response::new(BoolResponse {
+            result: result.is_ok(),
+        }))
+    }
 
     async fn open_mmap(
         &self,
