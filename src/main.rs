@@ -18,9 +18,18 @@ mod accessor;
 use accessor::Accessor;
 
 #[derive(Debug, Default)]
-pub struct FpgaControlService {
+struct FpgaControlService {
     verbose: i32,
     accessor: Arc<RwLock<Accessor>>,
+}
+
+impl FpgaControlService {
+    pub fn new(verbose: i32) -> Self {
+        FpgaControlService {
+            verbose: verbose,
+            accessor: Arc::new(RwLock::new(Accessor::new())),
+        }
+    }
 }
 
 #[tonic::async_trait]
@@ -465,16 +474,31 @@ impl FpgaControl for FpgaControlService {
     }
 }
 
+use clap::Parser;
+
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+    /// Verbose level
+    #[arg(short, long, default_value_t = 0)]
+    verbose: i32,
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let args = Args::parse();
+
     fpgautil::set_allow_sudo(true);
 
     let address = "0.0.0.0:50051".parse().unwrap();
-    let mut fpga_contro_service = FpgaControlService::default();
-    fpga_contro_service.verbose = 1;
+    let fpga_control_service = FpgaControlService::new(args.verbose);
+
+    if fpga_control_service.verbose >= 1 {
+        println!("jelly-fpga-server start");
+    }
 
     Server::builder()
-        .add_service(FpgaControlServer::new(fpga_contro_service))
+        .add_service(FpgaControlServer::new(fpga_control_service))
         .serve(address)
         .await?;
 
