@@ -17,9 +17,15 @@ service FpgaControl {
     rpc OpenUio (OpenUioRequest) returns (OpenResponse);
     rpc Close (CloseRequest) returns (BoolResponse);
 
-    rpc WriteMemU64 (WriteMemU64Request) returns (BoolResponse);
+    rpc WriteMemU    (WriteMemURequest)  returns (BoolResponse);
+    rpc WriteMemI    (WriteMemIRequest)  returns (BoolResponse);
+    rpc ReadMemU     (ReadMemRequest)    returns (ReadUResponse);
+    rpc ReadMemI     (ReadMemRequest)    returns (ReadIResponse);
+    rpc WriteRegU    (WriteRegURequest)  returns (BoolResponse);
+    rpc WriteRegI    (WriteRegIRequest)  returns (BoolResponse);
+    rpc ReadRegU     (ReadRegRequest)    returns (ReadUResponse);
+    rpc ReadRegI     (ReadRegRequest)    returns (ReadIResponse);
 }
-
 
 message Empty {
 }
@@ -91,8 +97,54 @@ message CloseRequest {
     uint32 id = 1;
 }
 
-message WriteMemU64Request {
+
+message WriteMemURequest {
     uint32 id = 1;
-    uint64 addr = 2;
+    uint64 offset = 2;
     uint64 data = 3;
+    uint64 size = 4;
 }
+
+message WriteMemIRequest {
+    uint32 id = 1;
+    uint64 offset = 2;
+    int64  data = 3;
+    uint64 size = 4;
+}
+
+message ReadMemRequest {
+    uint32 id = 1;
+    uint64 offset = 2;
+    uint64 size = 3;
+}
+
+message WriteRegURequest {
+    uint32 id = 1;
+    uint64 reg = 2;
+    uint64 data = 3;
+    uint64 size = 4;
+}
+
+message WriteRegIRequest {
+    uint32 id = 1;
+    uint64 reg = 2;
+    int64  data = 3;
+    uint64 size = 4;
+}
+
+message ReadRegRequest {
+    uint32 id = 1;
+    uint64 reg = 2;
+    uint64 size = 3;
+}
+
+message ReadUResponse {
+    bool  result = 1;
+    uint64 data = 2;
+}
+
+message ReadIResponse {
+    bool  result = 1;
+    int64 data = 2;
+}
+
