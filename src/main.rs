@@ -1,11 +1,11 @@
-use std::sync::Arc;
 use fpga_control::fpga_control_server::*;
 use fpga_control::*;
+use std::sync::Arc;
 //use tokio::fs::File;
 //use tokio::io::AsyncWriteExt;
+use tokio::sync::RwLock;
 use tokio_stream::StreamExt;
 use tonic::{transport::Server, Request, Response, Status, Streaming};
-use tokio::sync::RwLock;
 
 use jelly_fpgautil as fpgautil;
 use jelly_uidmng as uidmng;
@@ -22,7 +22,6 @@ pub struct FpgaControlService {
     verbose: i32,
     accessor: Arc<RwLock<Accessor>>,
 }
-
 
 #[tonic::async_trait]
 impl FpgaControl for FpgaControlService {
@@ -156,7 +155,12 @@ impl FpgaControl for FpgaControlService {
             println!("open_mmap:{}", req.path);
         }
         let mut accessor = self.accessor.write().await;
-        let result = accessor.open_mmap(&req.path, req.offset as usize, req.size as usize, req.unit as usize);
+        let result = accessor.open_mmap(
+            &req.path,
+            req.offset as usize,
+            req.size as usize,
+            req.unit as usize,
+        );
         match result {
             Ok(id) => Ok(Response::new(OpenResponse {
                 result: true,
@@ -191,6 +195,28 @@ impl FpgaControl for FpgaControlService {
         }
     }
 
+    async fn open_udmabuf(
+        &self,
+        request: Request<OpenUdmabufRequest>,
+    ) -> Result<Response<OpenResponse>, Status> {
+        let req = request.into_inner();
+        if self.verbose >= 1 {
+            println!("open_udmabuf:{}", req.name);
+        }
+        let mut accessor = self.accessor.write().await;
+        let result = accessor.open_udmabuf(&req.name, req.cache_enable, req.unit as usize);
+        match result {
+            Ok(id) => Ok(Response::new(OpenResponse {
+                result: true,
+                id: id,
+            })),
+            Err(_) => Ok(Response::new(OpenResponse {
+                result: false,
+                id: 0,
+            })),
+        }
+    }
+
     async fn close(
         &self,
         request: Request<CloseRequest>,
@@ -201,21 +227,225 @@ impl FpgaControl for FpgaControlService {
         }
         let mut accessor = self.accessor.write().await;
         let result = accessor.close(req.id as accessor::Id);
-        Ok(Response::new(BoolResponse { result: result.is_ok() }))
+        Ok(Response::new(BoolResponse {
+            result: result.is_ok(),
+        }))
     }
 
-
-    async fn write_mem_u64(
+    async fn write_mem_u(
         &self,
-        request: Request<WriteMemU64Request>,
+        request: Request<WriteMemURequest>,
     ) -> Result<Response<BoolResponse>, Status> {
         let req = request.into_inner();
         if self.verbose >= 1 {
-            println!("write_mem_u64:{}", req.id);
+            println!(
+                "write_mem:id={} offset={} data={} size={}",
+                req.id, req.offset, req.data, req.size
+            );
         }
         let mut accessor = self.accessor.write().await;
-        let result = accessor.write_mem_u64(req.id as accessor::Id, req.addr as usize, req.data);
-        Ok(Response::new(BoolResponse { result: result.is_ok() }))
+        let result = unsafe {
+            accessor.write_mem_u(
+                req.id as accessor::Id,
+                req.offset as usize,
+                req.data,
+                req.size as usize,
+            )
+        };
+        Ok(Response::new(BoolResponse {
+            result: result.is_ok(),
+        }))
+    }
+
+    async fn write_mem_i(
+        &self,
+        request: Request<WriteMemIRequest>,
+    ) -> Result<Response<BoolResponse>, Status> {
+        let req = request.into_inner();
+        if self.verbose >= 1 {
+            println!(
+                "write_mem:id={} offset={} data={} size={}",
+                req.id, req.offset, req.data, req.size
+            );
+        }
+        let mut accessor = self.accessor.write().await;
+        let result = unsafe {
+            accessor.write_mem_i(
+                req.id as accessor::Id,
+                req.offset as usize,
+                req.data,
+                req.size as usize,
+            )
+        };
+        Ok(Response::new(BoolResponse {
+            result: result.is_ok(),
+        }))
+    }
+
+    async fn read_mem_u(
+        &self,
+        request: Request<ReadMemRequest>,
+    ) -> Result<Response<ReadUResponse>, Status> {
+        let req = request.into_inner();
+        if self.verbose >= 1 {
+            println!(
+                "read_mem_u:id={} offset={} size={}",
+                req.id, req.offset, req.size
+            );
+        }
+        let mut accessor = self.accessor.write().await;
+        let result = unsafe {
+            accessor.read_mem_u(
+                req.id as accessor::Id,
+                req.offset as usize,
+                req.size as usize,
+            )
+        };
+        match result {
+            Ok(data) => Ok(Response::new(ReadUResponse {
+                result: true,
+                data: data,
+            })),
+            Err(_) => Ok(Response::new(ReadUResponse {
+                result: false,
+                data: 0,
+            })),
+        }
+    }
+
+    async fn read_mem_i(
+        &self,
+        request: Request<ReadMemRequest>,
+    ) -> Result<Response<ReadIResponse>, Status> {
+        let req = request.into_inner();
+        if self.verbose >= 1 {
+            println!(
+                "read_mem_u:id={} offset={} size={}",
+                req.id, req.offset, req.size
+            );
+        }
+        let mut accessor = self.accessor.write().await;
+        let result = unsafe {
+            accessor.read_mem_i(
+                req.id as accessor::Id,
+                req.offset as usize,
+                req.size as usize,
+            )
+        };
+        match result {
+            Ok(data) => Ok(Response::new(ReadIResponse {
+                result: true,
+                data: data,
+            })),
+            Err(_) => Ok(Response::new(ReadIResponse {
+                result: false,
+                data: 0,
+            })),
+        }
+    }
+
+    async fn write_reg_u(
+        &self,
+        request: Request<WriteRegURequest>,
+    ) -> Result<Response<BoolResponse>, Status> {
+        let req = request.into_inner();
+        if self.verbose >= 1 {
+            println!(
+                "write_mem:id={} offset={} data={} size={}",
+                req.id, req.reg, req.data, req.size
+            );
+        }
+        let mut accessor = self.accessor.write().await;
+        let result = unsafe {
+            accessor.write_reg_u(
+                req.id as accessor::Id,
+                req.reg as usize,
+                req.data,
+                req.size as usize,
+            )
+        };
+        Ok(Response::new(BoolResponse {
+            result: result.is_ok(),
+        }))
+    }
+
+    async fn write_reg_i(
+        &self,
+        request: Request<WriteRegIRequest>,
+    ) -> Result<Response<BoolResponse>, Status> {
+        let req = request.into_inner();
+        if self.verbose >= 1 {
+            println!(
+                "write_mem:id={} offset={} data={} size={}",
+                req.id, req.reg, req.data, req.size
+            );
+        }
+        let mut accessor = self.accessor.write().await;
+        let result = unsafe {
+            accessor.write_reg_i(
+                req.id as accessor::Id,
+                req.reg as usize,
+                req.data,
+                req.size as usize,
+            )
+        };
+        Ok(Response::new(BoolResponse {
+            result: result.is_ok(),
+        }))
+    }
+
+    async fn read_reg_u(
+        &self,
+        request: Request<ReadRegRequest>,
+    ) -> Result<Response<ReadUResponse>, Status> {
+        let req = request.into_inner();
+        if self.verbose >= 1 {
+            println!(
+                "read_mem_u:id={} offset={} size={}",
+                req.id, req.reg, req.size
+            );
+        }
+        let mut accessor = self.accessor.write().await;
+        let result = unsafe {
+            accessor.read_reg_u(req.id as accessor::Id, req.reg as usize, req.size as usize)
+        };
+        match result {
+            Ok(data) => Ok(Response::new(ReadUResponse {
+                result: true,
+                data: data,
+            })),
+            Err(_) => Ok(Response::new(ReadUResponse {
+                result: false,
+                data: 0,
+            })),
+        }
+    }
+
+    async fn read_reg_i(
+        &self,
+        request: Request<ReadRegRequest>,
+    ) -> Result<Response<ReadIResponse>, Status> {
+        let req = request.into_inner();
+        if self.verbose >= 1 {
+            println!(
+                "read_reg_i:id={} offset={} size={}",
+                req.id, req.reg, req.size
+            );
+        }
+        let mut accessor = self.accessor.write().await;
+        let result = unsafe {
+            accessor.read_reg_i(req.id as accessor::Id, req.reg as usize, req.size as usize)
+        };
+        match result {
+            Ok(data) => Ok(Response::new(ReadIResponse {
+                result: true,
+                data: data,
+            })),
+            Err(_) => Ok(Response::new(ReadIResponse {
+                result: false,
+                data: 0,
+            })),
+        }
     }
 }
 
