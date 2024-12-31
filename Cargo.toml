@@ -13,7 +13,7 @@ once_cell = "1.13.1"
 jelly-uidmng = {git="https://github.com/ryuz/jelly-uidmng.git", tag="v0.0.4"}
 #jelly-fpgautil = {git="https://github.com/ryuz/jelly-fpgautil.git"}
 jelly-fpgautil = { path="../jelly-fpgautil" }
-jelly-mem_access = "0.2.0"
+jelly-mem_access = "0.2.1"
 
 [build-dependencies]
 tonic-build = "0.12.3"
