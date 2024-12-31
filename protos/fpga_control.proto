@@ -15,6 +15,7 @@ service FpgaControl {
 
     rpc OpenMmap (OpenMmapRequest) returns (OpenResponse);
     rpc OpenUio (OpenUioRequest) returns (OpenResponse);
+    rpc OpenUdmabuf (OpenUdmabufRequest) returns (OpenResponse);
     rpc Close (CloseRequest) returns (BoolResponse);
 
     rpc WriteMemU    (WriteMemURequest)  returns (BoolResponse);
@@ -74,7 +75,7 @@ message DtsToDtbResponse {
 }
 
 
-///////////////
+// Memory Access
 
 message OpenMmapRequest {
     string path = 1;
@@ -88,6 +89,12 @@ message OpenUioRequest {
     uint64 unit = 2;
 }
 
+message OpenUdmabufRequest {
+    string name = 1;
+    bool   cache_enable = 2;
+    uint64 unit = 3;
+}
+
 message OpenResponse {
     bool  result = 1;
     uint32 id = 2;
@@ -96,7 +103,6 @@ message OpenResponse {
 message CloseRequest {
     uint32 id = 1;
 }
-
 
 message WriteMemURequest {
     uint32 id = 1;
