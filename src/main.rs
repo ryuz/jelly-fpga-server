@@ -209,7 +209,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let address = "0.0.0.0:50051".parse().unwrap();
     let mut fpga_contro_service = FpgaControlService::default();
-    fpga_contro_service.verbose = 0;
+    fpga_contro_service.verbose = 1;
 
     Server::builder()
         .add_service(FpgaControlServer::new(fpga_contro_service))
