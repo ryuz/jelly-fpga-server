@@ -115,6 +115,10 @@ impl Accessor {
         Ok(())
     }
 
+    pub fn close_all(&mut self) {
+        self.map.clear();
+    }
+
     pub fn write_mem(&self, id: Id, offset: usize, data: usize) -> Result<(), Box<dyn Error>> {
         let (accessor, _) = self.accessor(id)?;
         unsafe {
