@@ -1,9 +1,11 @@
+use std::sync::Arc;
 use fpga_control::fpga_control_server::*;
 use fpga_control::*;
 //use tokio::fs::File;
 //use tokio::io::AsyncWriteExt;
 use tokio_stream::StreamExt;
 use tonic::{transport::Server, Request, Response, Status, Streaming};
+use tokio::sync::RwLock;
 
 use jelly_fpgautil as fpgautil;
 use jelly_uidmng as uidmng;
@@ -13,26 +15,14 @@ pub mod fpga_control {
 }
 
 mod accessor;
+use accessor::Accessor;
 
 #[derive(Debug, Default)]
 pub struct FpgaControlService {
     verbose: i32,
+    accessor: Arc<RwLock<Accessor>>,
 }
 
-//mod fpga;
-//use fpga::CameraManager;
-
-struct FpgaManager {}
-
-impl FpgaManager {
-    fn new() -> Self {
-        FpgaManager {}
-    }
-}
-
-use once_cell::sync::Lazy;
-use std::sync::Mutex;
-static FPGA_CTL: Lazy<Mutex<FpgaManager>> = Lazy::new(|| Mutex::new(FpgaManager::new()));
 
 #[tonic::async_trait]
 impl FpgaControl for FpgaControlService {
@@ -155,6 +145,28 @@ impl FpgaControl for FpgaControlService {
         }
     }
 
+    async fn open_mmap(
+        &self,
+        request: Request<OpenMmapRequest>,
+    ) -> Result<Response<OpenResponse>, Status> {
+        let req = request.into_inner();
+        if self.verbose >= 1 {
+            println!("open_mmap:{}", req.path);
+        }
+        let mut accessor = self.accessor.write().await;
+        let result = accessor.open_mmap(&req.path, req.offset as usize, req.size as usize, req.unit as usize);
+        match result {
+            Ok(id) => Ok(Response::new(OpenResponse {
+                result: true,
+                id: id,
+            })),
+            Err(_) => Ok(Response::new(OpenResponse {
+                result: false,
+                id: 0,
+            })),
+        }
+    }
+
     async fn open_uio(
         &self,
         request: Request<OpenUioRequest>,
@@ -163,12 +175,18 @@ impl FpgaControl for FpgaControlService {
         if self.verbose >= 1 {
             println!("open_uio:{}", req.name);
         }
-        //        let result = match FPGA_CTL.lock().unwrap().open() {Ok(_) => true, Err(_) => false};
-        let id = 0;
-        Ok(Response::new(OpenResponse {
-            result: true,
-            id: id,
-        }))
+        let mut accessor = self.accessor.write().await;
+        let result = accessor.open_uio(&req.name, req.unit as usize);
+        match result {
+            Ok(id) => Ok(Response::new(OpenResponse {
+                result: true,
+                id: id,
+            })),
+            Err(_) => Ok(Response::new(OpenResponse {
+                result: false,
+                id: 0,
+            })),
+        }
     }
 
     async fn close(
@@ -179,8 +197,9 @@ impl FpgaControl for FpgaControlService {
         if self.verbose >= 1 {
             println!("close:{}", req.id);
         }
-        //      FPGA_CTL.lock().unwrap().close();
-        Ok(Response::new(BoolResponse { result: true }))
+        let mut accessor = self.accessor.write().await;
+        let result = accessor.close(req.id as accessor::Id);
+        Ok(Response::new(BoolResponse { result: result.is_ok() }))
     }
 }
 

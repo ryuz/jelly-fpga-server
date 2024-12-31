@@ -13,6 +13,7 @@ service FpgaControl {
 
     rpc DtsToDtb ( DtsToDtbRequest ) returns (DtsToDtbResponse);
 
+    rpc OpenMmap (OpenMmapRequest) returns (OpenResponse);
     rpc OpenUio (OpenUioRequest) returns (OpenResponse);
     rpc Close (CloseRequest) returns (BoolResponse);
 }
@@ -67,16 +68,24 @@ message DtsToDtbResponse {
 
 ///////////////
 
+message OpenMmapRequest {
+    string path = 1;
+    uint64 offset = 2;
+    uint64 size = 3;
+    uint64 unit = 4;
+}
+
 message OpenUioRequest {
     string name = 1;
+    uint64 unit = 2;
 }
 
 message OpenResponse {
     bool  result = 1;
-    int32 id = 2;
+    uint32 id = 2;
 }
 
 message CloseRequest {
-    int32 id = 1;
+    uint32 id = 1;
 }
 
