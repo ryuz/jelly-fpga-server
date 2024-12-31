@@ -4,12 +4,12 @@ package fpga_control;
 service FpgaControl {
     rpc Reset ( ResetRequest ) returns (BoolResponse);
 
-    rpc Load ( LoadRequest ) returns (LoadResponse);
+    rpc Load   ( LoadRequest ) returns (LoadResponse);
     rpc Unload ( UnloadRequest ) returns (BoolResponse);
 
     rpc UploadFirmware ( stream UploadFirmwareRequest ) returns (BoolResponse);
-    rpc LoadBitstream ( LoadBitstreamRequest ) returns (BoolResponse);
-    rpc LoadDtbo ( LoadDtboRequest ) returns (BoolResponse);
+    rpc LoadBitstream  ( LoadBitstreamRequest ) returns (BoolResponse);
+    rpc LoadDtbo       ( LoadDtboRequest ) returns (BoolResponse);
 
     rpc DtsToDtb ( DtsToDtbRequest ) returns (DtsToDtbResponse);
 
