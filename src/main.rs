@@ -496,6 +496,9 @@ struct Args {
     /// Verbose level
     #[arg(short, long, default_value_t = 0)]
     verbose: i32,
+    /// Allow external connections
+    #[arg(long)]
+    external: bool,
 }
 
 #[tokio::main]
@@ -504,8 +507,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     fpgautil::set_allow_sudo(true);
 
-    let address = "0.0.0.0:50051".parse().unwrap();
     let fpga_control_service = FpgaControlService::new(args.verbose);
+
+    let address = if args.external {
+        "0.0.0.0:50051"
+    } else {
+        "127.0.0.1:50051"
+    }.parse().unwrap();
 
     if fpga_control_service.verbose >= 1 {
         println!("jelly-fpga-server start");
@@ -516,5 +524,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .serve(address)
         .await?;
 
+    if fpga_control_service.verbose >= 1 {
+        println!("jelly-fpga-server stop");
+    }
+    
     Ok(())
 }
