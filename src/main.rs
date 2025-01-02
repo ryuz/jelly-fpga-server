@@ -1,31 +1,29 @@
-use fpga_control::fpga_control_server::*;
-use fpga_control::*;
 use std::sync::Arc;
-//use tokio::fs::File;
-//use tokio::io::AsyncWriteExt;
 use tokio::sync::RwLock;
 use tokio_stream::StreamExt;
 use tonic::{transport::Server, Request, Response, Status, Streaming};
-
 use jelly_fpgautil as fpgautil;
 use jelly_uidmng as uidmng;
 
-pub mod fpga_control {
-    tonic::include_proto!("fpga_control");
+pub mod jelly_fpga_control {
+    tonic::include_proto!("jelly_fpga_control");
 }
+
+use jelly_fpga_control::jelly_fpga_control_server::*;
+use jelly_fpga_control::*;
 
 mod accessor;
 use accessor::Accessor;
 
 #[derive(Debug, Default)]
-struct FpgaControlService {
+struct JellyFpgaControlService {
     verbose: i32,
     accessor: Arc<RwLock<Accessor>>,
 }
 
-impl FpgaControlService {
+impl JellyFpgaControlService {
     pub fn new(verbose: i32) -> Self {
-        FpgaControlService {
+        JellyFpgaControlService {
             verbose: verbose,
             accessor: Arc::new(RwLock::new(Accessor::new())),
         }
@@ -33,7 +31,7 @@ impl FpgaControlService {
 }
 
 #[tonic::async_trait]
-impl FpgaControl for FpgaControlService {
+impl JellyFpgaControl for JellyFpgaControlService {
     async fn reset(
         &self,
         _request: Request<ResetRequest>,
@@ -507,7 +505,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     fpgautil::set_allow_sudo(true);
 
-    let fpga_control_service = FpgaControlService::new(args.verbose);
+    let fpga_control_service = JellyFpgaControlService::new(args.verbose);
 
     let address = if args.external {
         "0.0.0.0:50051"
@@ -520,7 +518,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     Server::builder()
-        .add_service(FpgaControlServer::new(fpga_control_service))
+        .add_service(JellyFpgaControlServer::new(fpga_control_service))
         .serve(address)
         .await?;
 

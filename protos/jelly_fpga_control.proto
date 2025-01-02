@@ -1,7 +1,7 @@
 syntax = "proto3";
-package fpga_control;
+package jelly_fpga_control;
 
-service FpgaControl {
+service JellyFpgaControl {
     rpc Reset ( ResetRequest ) returns (BoolResponse);
 
     rpc Load   ( LoadRequest ) returns (LoadResponse);
