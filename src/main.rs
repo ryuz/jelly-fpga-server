@@ -497,13 +497,17 @@ struct Args {
     /// Allow external connections
     #[arg(long)]
     external: bool,
+    #[arg(long)]
+    allow_sudo: bool,
 }
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
 
-    fpgautil::set_allow_sudo(true);
+    if args.allow_sudo {
+        fpgautil::set_allow_sudo(true);
+    }
 
     let fpga_control_service = JellyFpgaControlService::new(args.verbose);
 
