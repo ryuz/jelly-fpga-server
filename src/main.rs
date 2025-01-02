@@ -103,6 +103,20 @@ impl FpgaControl for FpgaControlService {
         Ok(Response::new(BoolResponse { result: true }))
     }
 
+    async fn remove_firmware(
+        &self,
+        request: Request<RemoveFirmwareRequest>,
+    ) -> Result<Response<BoolResponse>, Status> {
+        let req = request.into_inner();
+        if self.verbose >= 1 {
+            println!("remove_firmware : {}", req.name);
+        }
+        let result = fpgautil::remove_firmware(&req.name);
+        Ok(Response::new(BoolResponse {
+            result: result.is_ok(),
+        }))
+    }
+
     async fn load_bitstream(
         &self,
         request: Request<LoadBitstreamRequest>,

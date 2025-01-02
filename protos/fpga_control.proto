@@ -8,6 +8,7 @@ service FpgaControl {
     rpc Unload ( UnloadRequest ) returns (BoolResponse);
 
     rpc UploadFirmware ( stream UploadFirmwareRequest ) returns (BoolResponse);
+    rpc RemoveFirmware ( RemoveFirmwareRequest ) returns (BoolResponse);
     rpc LoadBitstream  ( LoadBitstreamRequest ) returns (BoolResponse);
     rpc LoadDtbo       ( LoadDtboRequest ) returns (BoolResponse);
 
@@ -55,6 +56,10 @@ message UnloadRequest {
 message UploadFirmwareRequest {
     string name = 1;
     bytes data = 2;
+}
+
+message RemoveFirmwareRequest {
+    string name = 1;
 }
 
 message LoadBitstreamRequest {
