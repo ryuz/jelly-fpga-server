@@ -515,7 +515,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         "127.0.0.1:50051"
     }.parse().unwrap();
 
-    if fpga_control_service.verbose >= 1 {
+    if args.verbose >= 1 {
         println!("jelly-fpga-server start");
     }
 
@@ -524,7 +524,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .serve(address)
         .await?;
 
-    if fpga_control_service.verbose >= 1 {
+    if args.verbose >= 1 {
         println!("jelly-fpga-server stop");
     }
     
