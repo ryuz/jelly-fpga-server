@@ -277,146 +277,90 @@ impl Accessor {
         Ok(data)
     }
 
-    /*
-    pub fn write_mem_usize(&mut self, id: Id, offset: usize, data: usize) -> Result<(), Box<dyn Error>> {
-        let (accessor, _) = self.accessor(id)?;
-        unsafe {
-            accessor.write_mem(offset, data);
-        }
-        Ok(())
-    }
 
-    pub fn write_mem_u8(&mut self, id: Id, offset: usize, data: u8) -> Result<(), Box<dyn Error>> {
-        let (accessor, _) = self.accessor(id)?;
-        unsafe {
-            accessor.write_mem_u8(offset, data);
-        }
-        Ok(())
-    }
-
-    pub fn write_mem_u16(
+    pub unsafe fn write_mem_f32(
         &mut self,
         id: Id,
         offset: usize,
-        data: u16,
+        data: f32,
     ) -> Result<(), Box<dyn Error>> {
         let (accessor, _) = self.accessor(id)?;
-        unsafe {
-            accessor.write_mem_u16(offset, data);
-        }
+        accessor.write_mem_f32(offset, data);
         Ok(())
     }
 
-    pub fn write_mem_u32(
+    pub unsafe fn write_mem_f64(
         &mut self,
         id: Id,
         offset: usize,
-        data: u32,
+        data: f64,
     ) -> Result<(), Box<dyn Error>> {
         let (accessor, _) = self.accessor(id)?;
-        unsafe {
-            accessor.write_mem_u32(offset, data);
-        }
+        accessor.write_mem_f64(offset, data);
         Ok(())
     }
 
-    pub fn write_mem_u64(
+    pub unsafe fn write_reg_f32(
+        &mut self,
+        id: Id,
+        reg: usize,
+        data: f32,
+    ) -> Result<(), Box<dyn Error>> {
+        let (accessor, unit) = self.accessor(id)?;
+        accessor.write_mem_f32(reg * unit, data);
+        Ok(())
+    }
+
+    pub unsafe fn write_reg_f64(
+        &mut self,
+        id: Id,
+        reg: usize,
+        data: f64,
+    ) -> Result<(), Box<dyn Error>> {
+        let (accessor, unit) = self.accessor(id)?;
+        accessor.write_mem_f64(reg * unit, data);
+        Ok(())
+    }
+
+    pub unsafe fn read_mem_f32(
         &mut self,
         id: Id,
         offset: usize,
-        data: u64,
-    ) -> Result<(), Box<dyn Error>> {
+    ) -> Result<f32, Box<dyn Error>> {
         let (accessor, _) = self.accessor(id)?;
-        unsafe {
-            accessor.write_mem_u64(offset, data);
-        }
-        Ok(())
+        let data = accessor.read_mem_f32(offset);
+        Ok(data)
     }
 
-    pub fn read_mem_u8(&mut self, id: Id, offset: usize) -> Result<u8, Box<dyn Error>> {
+    pub unsafe fn read_mem_f64(
+        &mut self,
+        id: Id,
+        offset: usize,
+    ) -> Result<f64, Box<dyn Error>> {
         let (accessor, _) = self.accessor(id)?;
-        Ok(unsafe { accessor.read_mem_u8(offset) })
+        let data = accessor.read_mem_f64(offset);
+        Ok(data)
     }
 
-    pub fn read_mem_u16(&mut self, id: Id, offset: usize) -> Result<u16, Box<dyn Error>> {
-        let (accessor, _) = self.accessor(id)?;
-        Ok(unsafe { accessor.read_mem_u16(offset) })
-    }
-
-    pub fn read_mem_u32(&mut self, id: Id, offset: usize) -> Result<u32, Box<dyn Error>> {
-        let (accessor, _) = self.accessor(id)?;
-        Ok(unsafe { accessor.read_mem_u32(offset) })
-    }
-
-    pub fn read_mem_u64(&mut self, id: Id, offset: usize) -> Result<u64, Box<dyn Error>> {
-        let (accessor, _) = self.accessor(id)?;
-        Ok(unsafe { accessor.read_mem_u64(offset) })
-    }
-
-
-    pub fn write_reg(&mut self, id: Id, reg: usize, data: usize) -> Result<(), Box<dyn Error>> {
+    pub unsafe fn read_reg_f32(
+        &mut self,
+        id: Id,
+        reg: usize,
+    ) -> Result<f32, Box<dyn Error>> {
         let (accessor, unit) = self.accessor(id)?;
-        unsafe {
-            accessor.write_mem(reg * unit, data);
-        }
-        Ok(())
+        let data = accessor.read_mem_f32(reg * unit);
+        Ok(data)
     }
 
-    pub fn write_reg_u8(&mut self, id: Id, reg: usize, data: u8) -> Result<(), Box<dyn Error>> {
+    pub unsafe fn read_reg_f64(
+        &mut self,
+        id: Id,
+        reg: usize,
+    ) -> Result<f64, Box<dyn Error>> {
         let (accessor, unit) = self.accessor(id)?;
-        unsafe {
-            accessor.write_mem_u8(reg * unit, data);
-        }
-        Ok(())
+        let data = accessor.read_mem_f64(reg * unit);
+        Ok(data)
     }
 
-    pub fn write_reg_u16(&mut self, id: Id, reg: usize, data: u16) -> Result<(), Box<dyn Error>> {
-        let (accessor, unit) = self.accessor(id)?;
-        unsafe {
-            accessor.write_mem_u16(reg * unit, data);
-        }
-        Ok(())
-    }
-
-    pub fn write_reg_u32(&mut self, id: Id, reg: usize, data: u32) -> Result<(), Box<dyn Error>> {
-        let (accessor, unit) = self.accessor(id)?;
-        unsafe {
-            accessor.write_mem_u32(reg * unit, data);
-        }
-        Ok(())
-    }
-
-    pub fn write_reg_u64(&mut self, id: Id, reg: usize, data: u64) -> Result<(), Box<dyn Error>> {
-        let (accessor, unit) = self.accessor(id)?;
-        unsafe {
-            accessor.write_mem_u64(reg * unit, data);
-        }
-        Ok(())
-    }
-
-    pub fn read_reg(&mut self, id: Id, reg: usize) -> Result<usize, Box<dyn Error>> {
-        let (accessor, unit) = self.accessor(id)?;
-        Ok(unsafe { accessor.read_mem(reg * unit) })
-    }
-
-    pub fn read_reg_u8(&mut self, id: Id, reg: usize) -> Result<u8, Box<dyn Error>> {
-        let (accessor, unit) = self.accessor(id)?;
-        Ok(unsafe { accessor.read_mem_u8(reg * unit) })
-    }
-
-    pub fn read_reg_u16(&mut self, id: Id, reg: usize) -> Result<u16, Box<dyn Error>> {
-        let (accessor, unit) = self.accessor(id)?;
-        Ok(unsafe { accessor.read_mem_u16(reg * unit) })
-    }
-
-    pub fn read_reg_u32(&mut self, id: Id, reg: usize) -> Result<u32, Box<dyn Error>> {
-        let (accessor, unit) = self.accessor(id)?;
-        Ok(unsafe { accessor.read_mem_u32(reg * unit) })
-    }
-
-    pub fn read_reg_u64(&mut self, id: Id, reg: usize) -> Result<u64, Box<dyn Error>> {
-        let (accessor, unit) = self.accessor(id)?;
-        Ok(unsafe { accessor.read_mem_u64(reg * unit) })
-    }
-    */
+    
 }

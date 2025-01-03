@@ -47,7 +47,7 @@ impl JellyFpgaControl for JellyFpgaControlService {
     async fn load(&self, request: Request<LoadRequest>) -> Result<Response<LoadResponse>, Status> {
         let req = request.into_inner();
         if self.verbose >= 1 {
-            println!("load : {}", req.name);
+            println!("load: name={}", req.name);
         }
         let result = fpgautil::load(&req.name);
         if let Ok(slot) = result {
@@ -69,7 +69,7 @@ impl JellyFpgaControl for JellyFpgaControlService {
     ) -> Result<Response<BoolResponse>, Status> {
         let req = request.into_inner();
         if self.verbose >= 1 {
-            println!("unload : {}", req.slot);
+            println!("unload: slot={}", req.slot);
         }
         let result = fpgautil::unload(req.slot);
         Ok(Response::new(BoolResponse {
@@ -119,7 +119,7 @@ impl JellyFpgaControl for JellyFpgaControlService {
     ) -> Result<Response<BoolResponse>, Status> {
         let req = request.into_inner();
         if self.verbose >= 1 {
-            println!("remove_firmware : {}", req.name);
+            println!("remove_firmware: name={}", req.name);
         }
         let result = fpgautil::remove_firmware(&req.name);
         Ok(Response::new(BoolResponse {
@@ -133,7 +133,7 @@ impl JellyFpgaControl for JellyFpgaControlService {
     ) -> Result<Response<BoolResponse>, Status> {
         let req = request.into_inner();
         if self.verbose >= 1 {
-            println!("load_bitstream : {}", req.name);
+            println!("load_bitstream: name={}", req.name);
         }
         let result = fpgautil::load_bitstream_from_firmware(&req.name);
         Ok(Response::new(BoolResponse {
@@ -147,7 +147,7 @@ impl JellyFpgaControl for JellyFpgaControlService {
     ) -> Result<Response<BoolResponse>, Status> {
         let req = request.into_inner();
         if self.verbose >= 1 {
-            println!("load_dtbo : {}", req.name);
+            println!("load_dtbo: name={}", req.name);
         }
         let result = fpgautil::load_dtbo_from_firmware(&req.name);
         Ok(Response::new(BoolResponse {
@@ -185,7 +185,7 @@ impl JellyFpgaControl for JellyFpgaControlService {
     ) -> Result<Response<BoolResponse>, Status> {
         let req = request.into_inner();
         if self.verbose >= 1 {
-            println!("bitstream_to_bin");
+            println!("bitstream_to_bin: bitstream_name={} bin_name={} arch={}", req.bitstream_name, req.bin_name, req.arch);
         }
         let bit_path = format!("/lib/firmware/{}", req.bitstream_name);
         let bin_path = format!("/lib/firmware/{}", req.bin_name);
@@ -201,7 +201,7 @@ impl JellyFpgaControl for JellyFpgaControlService {
     ) -> Result<Response<OpenResponse>, Status> {
         let req = request.into_inner();
         if self.verbose >= 1 {
-            println!("open_mmap:{}", req.path);
+            println!("open_mmap: path={}", req.path);
         }
         let mut accessor = self.accessor.write().await;
         let result = accessor.open_mmap(
@@ -228,7 +228,7 @@ impl JellyFpgaControl for JellyFpgaControlService {
     ) -> Result<Response<OpenResponse>, Status> {
         let req = request.into_inner();
         if self.verbose >= 1 {
-            println!("open_uio:{}", req.name);
+            println!("open_uio: name={}", req.name);
         }
         let mut accessor = self.accessor.write().await;
         let result = accessor.open_uio(&req.name, req.unit as usize);
@@ -250,7 +250,7 @@ impl JellyFpgaControl for JellyFpgaControlService {
     ) -> Result<Response<OpenResponse>, Status> {
         let req = request.into_inner();
         if self.verbose >= 1 {
-            println!("open_udmabuf:{}", req.name);
+            println!("open_udmabuf: name={}", req.name);
         }
         let mut accessor = self.accessor.write().await;
         let result = accessor.open_udmabuf(&req.name, req.cache_enable, req.unit as usize);
@@ -272,7 +272,7 @@ impl JellyFpgaControl for JellyFpgaControlService {
     ) -> Result<Response<BoolResponse>, Status> {
         let req = request.into_inner();
         if self.verbose >= 1 {
-            println!("close:{}", req.id);
+            println!("close: id={}", req.id);
         }
         let mut accessor = self.accessor.write().await;
         let result = accessor.close(req.id as accessor::Id);
@@ -288,7 +288,7 @@ impl JellyFpgaControl for JellyFpgaControlService {
         let req = request.into_inner();
         if self.verbose >= 1 {
             println!(
-                "write_mem:id={} offset={} data={} size={}",
+                "write_mem_u: id={} offset={} data={} size={}",
                 req.id, req.offset, req.data, req.size
             );
         }
@@ -313,7 +313,7 @@ impl JellyFpgaControl for JellyFpgaControlService {
         let req = request.into_inner();
         if self.verbose >= 1 {
             println!(
-                "write_mem:id={} offset={} data={} size={}",
+                "write_mem_i: id={} offset={} data={} size={}",
                 req.id, req.offset, req.data, req.size
             );
         }
@@ -338,7 +338,7 @@ impl JellyFpgaControl for JellyFpgaControlService {
         let req = request.into_inner();
         if self.verbose >= 1 {
             println!(
-                "read_mem_u:id={} offset={} size={}",
+                "read_mem_u: id={} offset={} size={}",
                 req.id, req.offset, req.size
             );
         }
@@ -369,7 +369,7 @@ impl JellyFpgaControl for JellyFpgaControlService {
         let req = request.into_inner();
         if self.verbose >= 1 {
             println!(
-                "read_mem_u:id={} offset={} size={}",
+                "read_mem_i: id={} offset={} size={}",
                 req.id, req.offset, req.size
             );
         }
@@ -400,7 +400,7 @@ impl JellyFpgaControl for JellyFpgaControlService {
         let req = request.into_inner();
         if self.verbose >= 1 {
             println!(
-                "write_mem:id={} offset={} data={} size={}",
+                "write_reg_u: id={} reg={} data={} size={}",
                 req.id, req.reg, req.data, req.size
             );
         }
@@ -425,7 +425,7 @@ impl JellyFpgaControl for JellyFpgaControlService {
         let req = request.into_inner();
         if self.verbose >= 1 {
             println!(
-                "write_mem:id={} offset={} data={} size={}",
+                "write_reg_i: id={} reg={} data={} size={}",
                 req.id, req.reg, req.data, req.size
             );
         }
@@ -450,7 +450,7 @@ impl JellyFpgaControl for JellyFpgaControlService {
         let req = request.into_inner();
         if self.verbose >= 1 {
             println!(
-                "read_mem_u:id={} offset={} size={}",
+                "read_reg_u: id={} reg={} size={}",
                 req.id, req.reg, req.size
             );
         }
@@ -477,7 +477,7 @@ impl JellyFpgaControl for JellyFpgaControlService {
         let req = request.into_inner();
         if self.verbose >= 1 {
             println!(
-                "read_reg_i:id={} offset={} size={}",
+                "read_reg_i: id={} reg={} size={}",
                 req.id, req.reg, req.size
             );
         }
@@ -496,6 +496,211 @@ impl JellyFpgaControl for JellyFpgaControlService {
             })),
         }
     }
+
+    async fn write_mem_f32(
+        &self,
+        request: Request<WriteMemF32Request>,
+    ) -> Result<Response<BoolResponse>, Status> {
+        let req = request.into_inner();
+        if self.verbose >= 1 {
+            println!(
+                "write_mem_f32: id={} offset={} data={}",
+                req.id, req.offset, req.data
+            );
+        }
+        let mut accessor = self.accessor.write().await;
+        let result = unsafe {
+            accessor.write_mem_f32(
+                req.id as accessor::Id,
+                req.offset as usize,
+                req.data,
+            )
+        };
+        Ok(Response::new(BoolResponse {
+            result: result.is_ok(),
+        }))
+    }
+
+    async fn write_mem_f64(
+        &self,
+        request: Request<WriteMemF64Request>,
+    ) -> Result<Response<BoolResponse>, Status> {
+        let req = request.into_inner();
+        if self.verbose >= 1 {
+            println!(
+                "write_mem_f64: id={} offset={} data={}",
+                req.id, req.offset, req.data
+            );
+        }
+        let mut accessor = self.accessor.write().await;
+        let result = unsafe {
+            accessor.write_mem_f64(
+                req.id as accessor::Id,
+                req.offset as usize,
+                req.data,
+            )
+        };
+        Ok(Response::new(BoolResponse {
+            result: result.is_ok(),
+        }))
+    }
+
+    async fn read_mem_f32(
+        &self,
+        request: Request<ReadMemRequest>,
+    ) -> Result<Response<ReadF32Response>, Status> {
+        let req = request.into_inner();
+        if self.verbose >= 1 {
+            println!(
+                "read_mem_f32: id={} offset={}",
+                req.id, req.offset
+            );
+        }
+        let mut accessor = self.accessor.write().await;
+        let result = unsafe {
+            accessor.read_mem_f32(req.id as accessor::Id, req.offset as usize)
+        };
+        match result {
+            Ok(data) => Ok(Response::new(ReadF32Response {
+                result: true,
+                data: data,
+            })),
+            Err(_) => Ok(Response::new(ReadF32Response {
+                result: false,
+                data: 0.0,
+            })),
+        }
+    }
+
+    async fn read_mem_f64(
+        &self,
+        request: Request<ReadMemRequest>,
+    ) -> Result<Response<ReadF64Response>, Status> {
+        let req = request.into_inner();
+        if self.verbose >= 1 {
+            println!(
+                "read_mem_f64: id={} offset={}",
+                req.id, req.offset
+            );
+        }
+        let mut accessor = self.accessor.write().await;
+        let result = unsafe {
+            accessor.read_mem_f64(req.id as accessor::Id, req.offset as usize)
+        };
+        match result {
+            Ok(data) => Ok(Response::new(ReadF64Response {
+                result: true,
+                data: data,
+            })),
+            Err(_) => Ok(Response::new(ReadF64Response {
+                result: false,
+                data: 0.0,
+            })),
+        }
+    }
+
+    async fn write_reg_f32(
+        &self,
+        request: Request<WriteRegF32Request>,
+    ) -> Result<Response<BoolResponse>, Status> {
+        let req = request.into_inner();
+        if self.verbose >= 1 {
+            println!(
+                "write_reg_f32: id={} reg={} data={}",
+                req.id, req.reg, req.data
+            );
+        }
+        let mut accessor = self.accessor.write().await;
+        let result = unsafe {
+            accessor.write_reg_f32(
+                req.id as accessor::Id,
+                req.reg as usize,
+                req.data,
+            )
+        };
+        Ok(Response::new(BoolResponse {
+            result: result.is_ok(),
+        }))
+    }
+
+    async fn write_reg_f64(
+        &self,
+        request: Request<WriteRegF64Request>,
+    ) -> Result<Response<BoolResponse>, Status> {
+        let req = request.into_inner();
+        if self.verbose >= 1 {
+            println!(
+                "write_reg_f64: id={} reg={} data={}",
+                req.id, req.reg, req.data
+            );
+        }
+        let mut accessor = self.accessor.write().await;
+        let result = unsafe {
+            accessor.write_reg_f64(
+                req.id as accessor::Id,
+                req.reg as usize,
+                req.data,
+            )
+        };
+        Ok(Response::new(BoolResponse {
+            result: result.is_ok(),
+        }))
+    }
+
+    async fn read_reg_f32(
+        &self,
+        request: Request<ReadRegRequest>,
+    ) -> Result<Response<ReadF32Response>, Status> {
+        let req = request.into_inner();
+        if self.verbose >= 1 {
+            println!(
+                "read_reg_f32: id={} reg={}",
+                req.id, req.reg
+            );
+        }
+        let mut accessor = self.accessor.write().await;
+        let result = unsafe {
+            accessor.read_reg_f32(req.id as accessor::Id, req.reg as usize)
+        };
+        match result {
+            Ok(data) => Ok(Response::new(ReadF32Response {
+                result: true,
+                data: data,
+            })),
+            Err(_) => Ok(Response::new(ReadF32Response {
+                result: false,
+                data: 0.0,
+            })),
+        }
+    }
+
+    async fn read_reg_f64(
+        &self,
+        request: Request<ReadRegRequest>,
+    ) -> Result<Response<ReadF64Response>, Status> {
+        let req = request.into_inner();
+        if self.verbose >= 1 {
+            println!(
+                "read_reg_f64: id={} reg={}",
+                req.id, req.reg
+            );
+        }
+        let mut accessor = self.accessor.write().await;
+        let result = unsafe {
+            accessor.read_reg_f64(req.id as accessor::Id, req.reg as usize)
+        };
+        match result {
+            Ok(data) => Ok(Response::new(ReadF64Response {
+                result: true,
+                data: data,
+            })),
+            Err(_) => Ok(Response::new(ReadF64Response {
+                result: false,
+                data: 0.0,
+            })),
+        }
+    }
+
 }
 
 use clap::Parser;
