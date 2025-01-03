@@ -81,10 +81,18 @@ impl JellyFpgaControl for JellyFpgaControlService {
         &self,
         request: Request<Streaming<UploadFirmwareRequest>>,
     ) -> Result<Response<BoolResponse>, Status> {
+
+        if self.verbose >= 1 {
+            println!("upload_firmware");
+        }
+
         let mut stream = request.into_inner();
 
         let mut first = true;
         while let Some(msg) = stream.next().await {
+            if self.verbose >= 2 {
+                print!(".");
+            }
             let msg = msg?;
             let name = format!("/lib/firmware/{}", msg.name);
             if let Err(e) = if first {
@@ -96,6 +104,10 @@ impl JellyFpgaControl for JellyFpgaControlService {
                 return Ok(Response::new(BoolResponse { result: false }));
             }
             first = false;
+        }
+
+        if self.verbose >= 2 {
+            println!("done");
         }
 
         Ok(Response::new(BoolResponse { result: true }))
