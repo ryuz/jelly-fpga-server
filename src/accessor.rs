@@ -91,6 +91,21 @@ impl Accessor {
         }
     }
 
+    pub fn addr(&self, id: Id) ->  Result<usize, Box<dyn Error>> {
+        let (accessor, _) = self.accessor(id)?;
+        Ok(accessor.addr())
+    }
+
+    pub fn size(&self, id: Id) ->  Result<usize, Box<dyn Error>> {
+        let (accessor, _) = self.accessor(id)?;
+        Ok(accessor.size())
+    }
+
+    pub fn phys_addr(&self, id: Id) ->  Result<usize, Box<dyn Error>> {
+        let (accessor, _) = self.accessor(id)?;
+        Ok(accessor.phys_addr())
+    }
+    
     pub fn subclone(
         &mut self,
         id: Id,

@@ -271,7 +271,7 @@ impl JellyFpgaControl for JellyFpgaControlService {
     async fn subclone(
         &self,
         request: Request<SubcloneRequest>,
-    ) -> Result<Response<OpenResponse>, Status> {
+    ) -> Result<Response<SubcloneResponse>, Status> {
         let req = request.into_inner();
         if self.verbose >= 1 {
             println!("subclone: id={} offset={} size={} unit={}", req.id, req.offset, req.size, req.unit);
@@ -279,13 +279,79 @@ impl JellyFpgaControl for JellyFpgaControlService {
         let mut accessor = self.accessor.write().await;
         let result = accessor.subclone(req.id as accessor::Id, req.offset as usize, req.size as usize, req.unit as usize);
         match result {
-            Ok(id) => Ok(Response::new(OpenResponse {
+            Ok(id) => Ok(Response::new(SubcloneResponse {
                 result: true,
                 id: id,
             })),
-            Err(_) => Ok(Response::new(OpenResponse {
+            Err(_) => Ok(Response::new(SubcloneResponse {
                 result: false,
                 id: 0,
+            })),
+        }
+    }
+
+    async fn get_addr(
+        &self,
+        request: Request<GetAddrRequest>,
+    ) -> Result<Response<GetAddrResponse>, Status> {
+        let req = request.into_inner();
+        if self.verbose >= 1 {
+            println!("get_addr: id={}", req.id);
+        }
+        let accessor = self.accessor.write().await;
+        let result = accessor.addr(req.id as accessor::Id);
+        match result {
+            Ok(addr) => Ok(Response::new(GetAddrResponse {
+                result: true,
+                addr: addr as u64,
+            })),
+            Err(_) => Ok(Response::new(GetAddrResponse {
+                result: false,
+                addr: 0,
+            })),
+        }
+    }
+
+    async fn get_size(
+        &self,
+        request: Request<GetSizeRequest>,
+    ) -> Result<Response<GetSizeResponse>, Status> {
+        let req = request.into_inner();
+        if self.verbose >= 1 {
+            println!("get_addr: id={}", req.id);
+        }
+        let accessor = self.accessor.write().await;
+        let result = accessor.size(req.id as accessor::Id);
+        match result {
+            Ok(size) => Ok(Response::new(GetSizeResponse {
+                result: true,
+                size: size as u64,
+            })),
+            Err(_) => Ok(Response::new(GetSizeResponse {
+                result: false,
+                size: 0,
+            })),
+        }
+    }
+
+    async fn get_phys_addr(
+        &self,
+        request: Request<GetPhysAddrRequest>,
+    ) -> Result<Response<GetPhysAddrResponse>, Status> {
+        let req = request.into_inner();
+        if self.verbose >= 1 {
+            println!("get_addr: id={}", req.id);
+        }
+        let accessor = self.accessor.write().await;
+        let result = accessor.phys_addr(req.id as accessor::Id);
+        match result {
+            Ok(phys_addr) => Ok(Response::new(GetPhysAddrResponse {
+                result: true,
+                phys_addr: phys_addr as u64,
+            })),
+            Err(_) => Ok(Response::new(GetPhysAddrResponse {
+                result: false,
+                phys_addr: 0,
             })),
         }
     }
