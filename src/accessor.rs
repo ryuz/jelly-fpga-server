@@ -277,7 +277,6 @@ impl Accessor {
         Ok(data)
     }
 
-
     pub unsafe fn write_mem_f32(
         &mut self,
         id: Id,
@@ -322,45 +321,50 @@ impl Accessor {
         Ok(())
     }
 
-    pub unsafe fn read_mem_f32(
-        &mut self,
-        id: Id,
-        offset: usize,
-    ) -> Result<f32, Box<dyn Error>> {
+    pub unsafe fn read_mem_f32(&mut self, id: Id, offset: usize) -> Result<f32, Box<dyn Error>> {
         let (accessor, _) = self.accessor(id)?;
         let data = accessor.read_mem_f32(offset);
         Ok(data)
     }
 
-    pub unsafe fn read_mem_f64(
-        &mut self,
-        id: Id,
-        offset: usize,
-    ) -> Result<f64, Box<dyn Error>> {
+    pub unsafe fn read_mem_f64(&mut self, id: Id, offset: usize) -> Result<f64, Box<dyn Error>> {
         let (accessor, _) = self.accessor(id)?;
         let data = accessor.read_mem_f64(offset);
         Ok(data)
     }
 
-    pub unsafe fn read_reg_f32(
-        &mut self,
-        id: Id,
-        reg: usize,
-    ) -> Result<f32, Box<dyn Error>> {
+    pub unsafe fn read_reg_f32(&mut self, id: Id, reg: usize) -> Result<f32, Box<dyn Error>> {
         let (accessor, unit) = self.accessor(id)?;
         let data = accessor.read_mem_f32(reg * unit);
         Ok(data)
     }
 
-    pub unsafe fn read_reg_f64(
-        &mut self,
-        id: Id,
-        reg: usize,
-    ) -> Result<f64, Box<dyn Error>> {
+    pub unsafe fn read_reg_f64(&mut self, id: Id, reg: usize) -> Result<f64, Box<dyn Error>> {
         let (accessor, unit) = self.accessor(id)?;
         let data = accessor.read_mem_f64(reg * unit);
         Ok(data)
     }
 
-    
+    pub unsafe fn mem_copy_to(
+        &mut self,
+        id: Id,
+        offset: usize,
+        data: &[u8],
+    ) -> Result<(), Box<dyn Error>> {
+        let (accessor, _) = self.accessor(id)?;
+        accessor.copy_from_u8(data.as_ptr(), offset as usize, data.len());
+        Ok(())
+    }
+
+    pub unsafe fn mem_copy_from(
+        &mut self,
+        id: Id,
+        offset: usize,
+        size: usize,
+    ) -> Result<Vec<u8>, Box<dyn Error>> {
+        let (accessor, _) = self.accessor(id)?;
+        let mut data = vec![0; size];
+        accessor.copy_to_u8(offset as usize, data.as_mut_ptr(), size);
+        Ok(data)
+    }
 }
