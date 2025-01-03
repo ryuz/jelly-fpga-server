@@ -268,6 +268,28 @@ impl JellyFpgaControl for JellyFpgaControlService {
         }
     }
 
+    async fn subclone(
+        &self,
+        request: Request<SubcloneRequest>,
+    ) -> Result<Response<OpenResponse>, Status> {
+        let req = request.into_inner();
+        if self.verbose >= 1 {
+            println!("subclone: id={} offset={} size={} unit={}", req.id, req.offset, req.size, req.unit);
+        }
+        let mut accessor = self.accessor.write().await;
+        let result = accessor.subclone(req.id as accessor::Id, req.offset as usize, req.size as usize, req.unit as usize);
+        match result {
+            Ok(id) => Ok(Response::new(OpenResponse {
+                result: true,
+                id: id,
+            })),
+            Err(_) => Ok(Response::new(OpenResponse {
+                result: false,
+                id: 0,
+            })),
+        }
+    }
+
     async fn close(
         &self,
         request: Request<CloseRequest>,
