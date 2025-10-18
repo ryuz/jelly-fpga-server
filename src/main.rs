@@ -817,6 +817,9 @@ struct Args {
     /// Allow external connections
     #[arg(long)]
     external: bool,
+    /// Port number to listen on
+    #[arg(short, long, default_value_t = 8051)]
+    port: u16,
     #[arg(long)]
     allow_sudo: bool,
 }
@@ -832,9 +835,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let fpga_control_service = JellyFpgaControlService::new(args.verbose);
 
     let address = if args.external {
-        "0.0.0.0:50051"
+        format!("0.0.0.0:{}", args.port)
     } else {
-        "127.0.0.1:50051"
+        format!("127.0.0.1:{}", args.port)
     }
     .parse()
     .unwrap();
