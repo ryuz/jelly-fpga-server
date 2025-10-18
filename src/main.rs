@@ -24,7 +24,7 @@ struct JellyFpgaControlService {
 impl JellyFpgaControlService {
     pub fn new(verbose: i32) -> Self {
         JellyFpgaControlService {
-            verbose: verbose,
+            verbose,
             accessor: Arc::new(RwLock::new(Accessor::new())),
         }
     }
@@ -298,7 +298,7 @@ impl JellyFpgaControl for JellyFpgaControlService {
         if self.verbose >= 1 {
             println!("get_addr: id={}", req.id);
         }
-        let accessor = self.accessor.write().await;
+        let accessor = self.accessor.read().await;
         let result = accessor.addr(req.id as accessor::Id);
         match result {
             Ok(addr) => Ok(Response::new(GetAddrResponse {
@@ -318,9 +318,9 @@ impl JellyFpgaControl for JellyFpgaControlService {
     ) -> Result<Response<GetSizeResponse>, Status> {
         let req = request.into_inner();
         if self.verbose >= 1 {
-            println!("get_addr: id={}", req.id);
+            println!("get_size: id={}", req.id);
         }
-        let accessor = self.accessor.write().await;
+        let accessor = self.accessor.read().await;
         let result = accessor.size(req.id as accessor::Id);
         match result {
             Ok(size) => Ok(Response::new(GetSizeResponse {
@@ -340,9 +340,9 @@ impl JellyFpgaControl for JellyFpgaControlService {
     ) -> Result<Response<GetPhysAddrResponse>, Status> {
         let req = request.into_inner();
         if self.verbose >= 1 {
-            println!("get_addr: id={}", req.id);
+            println!("get_phys_addr: id={}", req.id);
         }
-        let accessor = self.accessor.write().await;
+        let accessor = self.accessor.read().await;
         let result = accessor.phys_addr(req.id as accessor::Id);
         match result {
             Ok(phys_addr) => Ok(Response::new(GetPhysAddrResponse {
