@@ -24,4 +24,4 @@ kria-build:
 .PHONY: kria-run
 kria-run: kria-build
 	scp target/aarch64-unknown-linux-gnu/release/jelly-fpga-server $(KRIA_BOARD_ADDRESS):/tmp/jelly-fpga-server
-	ssh -t $(KRIA_BOARD_ADDRESS) "sudo /tmp/jelly-fpga-server --external"
+	ssh -t $(KRIA_BOARD_ADDRESS) "sudo /tmp/jelly-fpga-server --external --verbose 1"

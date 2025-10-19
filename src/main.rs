@@ -77,6 +77,47 @@ impl JellyFpgaControl for JellyFpgaControlService {
         }))
     }
 
+    async fn register_accel(
+        &self,
+        request: Request<RegisterAccelRequest>,
+    ) -> Result<Response<BoolResponse>, Status> {
+        let req = request.into_inner();
+        if self.verbose >= 1 {
+            println!("register_accel: accel_name={}", req.accel_name);
+        }
+        let json_file = if req.json_file.is_empty() {
+            None
+        } else {
+            Some(format!("/lib/firmware/{}", req.json_file))
+        };
+        let bin_file = format!("/lib/firmware/{}", req.bin_file);
+        let dtbo_file = format!("/lib/firmware/{}", req.dtbo_file);
+        let result = fpgautil::register_accel(
+            &req.accel_name,
+            &bin_file,
+            &dtbo_file,
+            json_file.as_deref(),
+            req.overwrite,
+        );
+        Ok(Response::new(BoolResponse {
+            result: result.is_ok(),
+        }))
+    }
+
+    async fn unregister_accel(
+        &self,
+        request: Request<UnregisterAccelRequest>,
+    ) -> Result<Response<BoolResponse>, Status> {
+        let req = request.into_inner();
+        if self.verbose >= 1 {
+            println!("unregister_accel: accel_name={}", req.accel_name);
+        }
+        let result = fpgautil::unregister_accel(&req.accel_name);
+        Ok(Response::new(BoolResponse {
+            result: result.is_ok(),
+        }))
+    }
+
     async fn upload_firmware(
         &self,
         request: Request<Streaming<UploadFirmwareRequest>>,
