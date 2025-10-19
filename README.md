@@ -30,6 +30,14 @@ Jelly FPGAプロジェクト用のgRPCサーバーです。FPGA制御、メモ�
 - Protocol Buffers compiler (protoc)
 - cargo
 
+
+Protocol Buffers compiler は以下のコマンドでインストールできます
+
+```bash
+sudo apt update 
+sudo apt install -y protobuf-compiler
+```
+
 ### クロスコンパイル要件（Kria KV260向け）
 - [cross](https://github.com/cross-rs/cross)
 
