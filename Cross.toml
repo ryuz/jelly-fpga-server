@@ -1,11 +1,16 @@
 [target.aarch64-unknown-linux-gnu]
-pre-build = [
-    "dpkg --add-architecture $CROSS_DEB_ARCH",
-    "apt-get update",
-    "apt-get install -y software-properties-common wget unzip",
-    "wget https://github.com/protocolbuffers/protobuf/releases/download/v21.12/protoc-21.12-linux-x86_64.zip",
-    "unzip protoc-21.12-linux-x86_64.zip -d /usr/local",
-    "chmod +x /usr/local/bin/protoc",
-    "rm protoc-21.12-linux-x86_64.zip",
-    "protoc --version"
-]
+image = "ghcr.io/ryuz/jelly/jelly-cross-arm64-ubuntu24:latest"
+#pre-build = [
+#    "dpkg --add-architecture $CROSS_DEB_ARCH",
+#    "apt-get update",
+#    "apt-get install -y software-properties-common wget unzip",
+#    "wget https://github.com/protocolbuffers/protobuf/releases/download/v21.12/protoc-21.12-linux-x86_64.zip",
+#    "unzip protoc-21.12-linux-x86_64.zip -d /usr/local",
+#    "chmod +x /usr/local/bin/protoc",
+#    "rm protoc-21.12-linux-x86_64.zip",
+#    "protoc --version"
+#]
+
+[target.arm-unknown-linux-gnueabihf]
+image = "ghcr.io/ryuz/jelly/jelly-cross-armhf-debian12:latest"
+

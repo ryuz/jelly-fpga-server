@@ -16,12 +16,16 @@ clean:
 	cargo clean
 
 
-# Cross Compile for Kria
-.PHONY: kria-build
-kria-build:
+# Cross Compile
+.PHONY: aarch64-build
+aarch64-build:
 	cross build --target aarch64-unknown-linux-gnu --release
 
+.PHONY: arm-build
+arm-build:
+	cross build --target arm-unknown-linux-gnueabihf --release
+
 .PHONY: kria-run
-kria-run: kria-build
+kria-run: aarch64-build
 	scp target/aarch64-unknown-linux-gnu/release/jelly-fpga-server $(KRIA_BOARD_ADDRESS):/tmp/jelly-fpga-server
 	ssh -t $(KRIA_BOARD_ADDRESS) "sudo /tmp/jelly-fpga-server --external --verbose 1"
