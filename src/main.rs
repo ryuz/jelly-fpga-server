@@ -32,6 +32,18 @@ impl JellyFpgaControlService {
 
 #[tonic::async_trait]
 impl JellyFpgaControl for JellyFpgaControlService {
+    async fn get_version(
+        &self,
+        _request: Request<Empty>,
+    ) -> Result<Response<VersionResponse>, Status> {
+        if self.verbose >= 1 {
+            println!("get_version");
+        }
+        Ok(Response::new(VersionResponse {
+            version: env!("CARGO_PKG_VERSION").to_string(),
+        }))
+    }
+
     async fn reset(
         &self,
         _request: Request<ResetRequest>,
