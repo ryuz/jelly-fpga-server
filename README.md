@@ -45,7 +45,7 @@ sudo apt install -y protobuf-compiler
 ## バイナリインストール
 
 ```bash
-curl -sL https://raw.githubusercontent.com/ryuz/jelly-fpga-server/master/binst.sh | bash
+curl -LsSf https://raw.githubusercontent.com/ryuz/jelly-fpga-server/master/binst.sh | sudo bash
 ```
 
 
