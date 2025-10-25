@@ -24,7 +24,7 @@ case $ARCH in
         # Kria K26
         TARGET_TRIPLE="aarch64-unknown-linux-gnu"
         ;;
-    "arm")
+    "arm"|"armv7l")
         # ZYBO
         TARGET_TRIPLE="arm-unknown-linux-gnueabihf"
         ;;
