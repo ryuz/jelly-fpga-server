@@ -9,7 +9,7 @@ build:
 
 .PHONY: run
 run: build
-	./target/release/jelly-fpga-server
+	cargo run --release -- --verbose 1
 
 .PHONY: clean
 clean:

@@ -1,217 +1,196 @@
-# jelly-fpga-server
+日本語版は[こちら](README_jp.md)です。
 
-Jelly FPGAプロジェクト用のgRPCサーバーです。FPGA制御、メモリアクセス、ファームウェア管理機能を提供します。
+# Overview
 
-## 概要
+`jelly-fpga-server` is a gRPC-based server application targeting Zynq/ZynqMP devices. It is primarily designed for use with Zynq UltraScale+ devices (such as Kria KV260).
 
-`jelly-fpga-server`は、FPGAデバイスの制御とメモリアクセスを行うためのgRPCベースのサーバーアプリケーションです。主にZynq UltraScale+デバイス（Kria KV260など）での使用を想定しています。
+By running a gRPC server as a service to control PL (Programmable Logic) components that require root privileges, this tool streamlines FPGA development.
 
-## 主な機能
+It is accessible not only from within the board but also over the network, enabling seamless development when cross-compiling from high-performance PCs running Vivado and other tools.
 
-### FPGA制御
-- **ビットストリームの読み込み**: FPGAにビットストリームを読み込み
-- **DTBOの読み込み**: デバイスツリーオーバーレイの適用
-- **ファームウェア管理**: ファームウェアのアップロード・削除
+Note that this is intended for research and development purposes and does not include authentication features, so use within a local network is recommended.
 
-### メモリアクセス
-- **MMAP**: メモリマップドI/Oアクセス
-- **UIO**: Userspace I/Oデバイスアクセス
-- **UDMABUF**: DMAバッファアクセス
+# Environment
 
-### データ型サポート
-- 符号なし整数（u8, u16, u32, u64, usize）
-- 符号付き整数（i8, i16, i32, i64, isize）
-- 浮動小数点数（f32, f64）
-- バイト配列のコピー
+Currently tested and verified on the following environments:
 
-## ビルド要件
+- [Kria KV260](https://www.amd.com/en/products/system-on-modules/kria/k26/kv260-vision-starter-kit.html) + [Ubuntu 24.04](https://ubuntu.com/download/amd)
+- [ZYBO Z7-20](https://digilent.com/reference/programmable-logic/zybo-z7/) + [Debian12](https://github.com/ikwzm/FPGA-SoC-Debian12)
 
-- Rust 1.70+
-- Protocol Buffers compiler (protoc)
-- cargo
+Primarily intended for FPGA bitstream downloads using [jelly-fpga-loader](https://github.com/ryuz/jelly-fpga-loader) and FPGA operations from various language bindings:
+
+- Rust : [jelly-fpga-client-rs](https://github.com/ryuz/jelly-fpga-client-rs)
+- Python : [jelly-fpga-client-py](https://github.com/ryuz/jelly-fpga-client-py)
+- Elixir : [jelly-fpga-client-ex](https://github.com/ryuz/jelly-fpga-client-ex)
 
 
-Protocol Buffers compiler は以下のコマンドでインストールできます
+# Installation
+
+Follow these steps to install the server on the FPGA board's Linux system.
+
+## Prerequisites
+
+Since we use dtc (Device Tree Compiler) and bootgen, install them with the following commands:
 
 ```bash
-sudo apt update 
-sudo apt install -y protobuf-compiler
+sudo apt update
+sudo apt install libssl-dev dtc
 ```
 
-### クロスコンパイル要件（Kria KV260向け）
-- [cross](https://github.com/cross-rs/cross)
+```bash
+git clone https://github.com/Xilinx/bootgen
+cd bootgen/
+make
+sudo cp bootgen /usr/local/bin/
+```
 
+## Binary Installation
 
-## バイナリインストール
+Execute the following command to download and install the latest binary from the GitHub releases page:
 
 ```bash
 curl -LsSf https://raw.githubusercontent.com/ryuz/jelly-fpga-server/master/binst.sh | sudo bash
 ```
 
+## Build and Install from Source
 
-## インストール
+Rust installation is required. Install it with the following commands:
 
-### 1. リポジトリのクローン
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source $HOME/.cargo/env
+```
+
+Protocol Buffers compiler (protoc) installation is also required:
+
+```bash
+sudo apt update
+sudo apt install protobuf-compiler
+```
+
+Clone the repository and run the installation script:
+
 ```bash
 git clone https://github.com/ryuz/jelly-fpga-server.git
 cd jelly-fpga-server
+sudo ./install.sh
 ```
 
-### 2. ビルド
+## Uninstallation
 
-#### ローカル環境でのビルド
-```bash
-cargo build --release
-```
-
-#### Makefileを使用したビルド
-```bash
-make build
-```
-
-#### Kria KV260向けクロスコンパイル
-```bash
-# crossツールのインストール（初回のみ）
-cargo install cross
-
-# クロスコンパイル
-make kria-build
-```
-
-## 使用方法
-
-### 基本的な実行
-```bash
-./target/release/jelly-fpga-server
-```
-
-### コマンドラインオプション
+Uninstall with the following commands:
 
 ```bash
-jelly-fpga-server [OPTIONS]
-
-オプション:
-  -v, --verbose <VERBOSE>  詳細レベル（0-2）[default: 0]
-      --external           外部接続を許可
-  -p, --port <PORT>        リスニングポート [default: 8051]
-      --allow-sudo         sudo権限での実行を許可
-  -h, --help               ヘルプメッセージを表示
-  -V, --version            バージョン情報を表示
+git clone https://github.com/ryuz/jelly-fpga-server.git
+cd jelly-fpga-server
+sudo ./uninstall.sh
 ```
 
-### 使用例
+Or manually uninstall as follows:
 
-#### 1. ローカルホストでの実行（デフォルト）
 ```bash
-./target/release/jelly-fpga-server
+sudo systemctl stop jelly-fpga-server
+sudo systemctl disable jelly-fpga-server
+sudo rm /usr/local/bin/jelly-fpga-server
+sudo rm /etc/systemd/system/jelly-fpga-server.service
+sudo rm /etc/default/jelly-fpga-server
 ```
 
-#### 2. 外部からの接続を許可して実行
+## Usage
+
+Start the service:
+
 ```bash
-./target/release/jelly-fpga-server --external
+sudo systemctl start jelly-fpga-server
 ```
 
-#### 3. 詳細ログ出力で実行
+Check service status:
+
 ```bash
-./target/release/jelly-fpga-server --verbose 2
+sudo systemctl status jelly-fpga-server
 ```
 
-#### 4. sudo権限を許可して実行
+Stop the service:
+
 ```bash
-sudo ./target/release/jelly-fpga-server --allow-sudo --external
+sudo systemctl stop jelly-fpga-server
 ```
 
-### Kria KV260での実行
 
-#### 1. ファイルのコピーと実行
+## Environment Configuration File
+
+You can specify service startup options by setting environment variables in `/etc/default/jelly-fpga-server`.
+
 ```bash
-# KRIA_BOARD_ADDRESS環境変数を設定
-export KRIA_BOARD_ADDRESS=user@your-kria-ip
-
-# ビルドとデプロイ
-make kria-run
+Options:
+  -v, --verbose <VERBOSE>  Verbosity level (0-2) [default: 0]
+      --external           Allow external connections
+  -p, --port <PORT>        Listening port [default: 8051]
+      --allow-sudo         Allow execution with sudo privileges
+  -h, --help               Show help message
+  -V, --version            Show version information
 ```
 
-#### 2. 手動でのデプロイ
-```bash
-# クロスコンパイル
-make kria-build
+By default, --external is enabled in binary installation, allowing external connections. Change as needed.
 
-# Kriaボードにコピー
-scp target/aarch64-unknown-linux-gnu/release/jelly-fpga-server user@kria-ip:/tmp/
 
-# Kriaボードで実行
-ssh user@kria-ip
-sudo /tmp/jelly-fpga-server --external --allow-sudo
-```
 
-## API仕様
 
-サーバーは以下のgRPCサービスを提供します：
+# Main Features Available via gRPC Remote Execution
 
-### FPGAコントロール
-- `Reset`: システムリセット
-- `Load`: ビットストリームの読み込み
-- `Unload`: ビットストリームのアンロード
+## Feature Overview
 
-### ファームウェア管理
-- `UploadFirmware`: ファームウェアのアップロード（ストリーミング）
-- `RemoveFirmware`: ファームウェアの削除
-- `LoadBitstream`: ビットストリームの読み込み
-- `LoadDtbo`: デバイスツリーオーバーレイの読み込み
+- Load bitstreams to FPGA
+- Apply device tree overlays
+- Register/unregister accelerators managed by xmutil or dfx-mgr-client
+- Memory-mapped I/O access
+- Userspace I/O device access
+- Access to [u-dma-buf](https://github.com/ikwzm/udmabuf)
 
-### メモリアクセサ
-- `OpenMmap`: メモリマップドアクセサの作成
-- `OpenUio`: UIOアクセサの作成
-- `OpenUdmabuf`: UDMABUFアクセサの作成
-- `Subclone`: サブアクセサの作成
-- `Close`: アクセサのクローズ
 
-### メモリ操作
-- `WriteMemU/I`: メモリへの整数書き込み
-- `ReadMemU/I`: メモリからの整数読み込み
-- `WriteRegU/I`: レジスタへの整数書き込み
-- `ReadRegU/I`: レジスタからの整数読み込み
-- `WriteMemF32/F64`: メモリへの浮動小数点書き込み
-- `ReadMemF32/F64`: メモリからの浮動小数点読み込み
-- `MemCopyTo/From`: バイト配列のコピー
+## API Specification
 
-詳細なAPI仕様は`protos/jelly_fpga_control.proto`を参照してください。
+The server provides the following gRPC services:
 
-## セキュリティ
+### FPGA Control
+- `Reset`: System reset
+- `Load`: Load bitstream
+- `Unload`: Unload bitstream
 
-- デフォルトでは`127.0.0.1`（ローカルホスト）のみでリスニング
-- `--external`オプションで外部接続を許可
-- `--allow-sudo`オプションで管理者権限での操作を許可
-- ファームウェアファイルは`/lib/firmware/`ディレクトリに制限
+### Firmware Management
+- `UploadFirmware`: Upload firmware (streaming)
+- `RemoveFirmware`: Remove firmware
+- `LoadBitstream`: Load bitstream
+- `LoadDtbo`: Load device tree overlay
 
-## 依存関係
+### Memory Accessors
+- `OpenMmap`: Create memory-mapped accessor
+- `OpenUio`: Create UIO accessor
+- `OpenUdmabuf`: Create UDMABUF accessor
+- `Subclone`: Create sub-accessor
+- `Close`: Close accessor
 
-主な依存関係：
-- `tonic`: gRPCフレームワーク
-- `tokio`: 非同期ランタイム
-- `prost`: Protocol Buffersライブラリ
-- `clap`: コマンドライン引数パーサー
-- `jelly-fpgautil`: FPGA制御ユーティリティ
-- `jelly-uidmng`: UID管理ユーティリティ
-- `jelly-mem_access`: メモリアクセスライブラリ
+### Memory Operations
+- `WriteMemU/I`: Write integers to memory
+- `ReadMemU/I`: Read integers from memory
+- `WriteRegU/I`: Write integers to registers
+- `ReadRegU/I`: Read integers from registers
+- `WriteMemF32/F64`: Write floating-point to memory
+- `ReadMemF32/F64`: Read floating-point from memory
+- `MemCopyTo/From`: Copy byte arrays
 
-## ライセンス
+See `protos/jelly_fpga_control.proto` for detailed API specifications.
 
-このプロジェクトのライセンス情報については、LICENSEファイルを参照してください。
 
-## 貢献
+## Related Projects
 
-バグ報告や機能要求は、GitHubのIssueページでお願いします。プルリクエストも歓迎します。
+- [jelly-fpgautil-rs](https://github.com/ryuz/jelly-fpgautil-rs) - FPGA control utilities
+- [jelly-uidmng-rs](https://github.com/ryuz/jelly-uidmng-rs) - UID management utilities
+- [jelly-mem_access](https://crates.io/crates/jelly-mem_access) - Memory access library
 
-## 関連プロジェクト
 
-- [jelly-fpgautil-rs](https://github.com/ryuz/jelly-fpgautil-rs) - FPGA制御ユーティリティ
-- [jelly-uidmng-rs](https://github.com/ryuz/jelly-uidmng-rs) - UID管理ユーティリティ
-- [jelly-mem_access](https://crates.io/crates/jelly-mem_access) - メモリアクセスライブラリ
+## Related Articles
 
-## 解説記事
+Articles related to this software are available below:
 
-詳細な使用方法や技術解説については、以下の記事を参照してください：
-
-- [jelly-fpga-server の解説記事（Zenn）](https://zenn.dev/ryuz88/articles/jelly-fpga-server)
+- [jelly-fpga-server explanation article (Zenn)](https://zenn.dev/ryuz88/articles/jelly-fpga-server)
