@@ -60,7 +60,7 @@ else
 fi
 
 echo "[4/5] Creating systemd unit at ${SERVICE_FILE} (requires sudo)."
-sudo tee "${SERVICE_FILE}" >/dev/null <<'EOF'
+sudo tee "${SERVICE_FILE}" >/dev/null <<EOF
 [Unit]
 Description=Jelly FPGA gRPC Server
 After=network-online.target
@@ -69,7 +69,7 @@ Wants=network-online.target
 [Service]
 Type=simple
 EnvironmentFile=-${ENV_FILE}
-ExecStart=${BIN_INSTALL_PATH} $OPTIONS
+ExecStart=${BIN_INSTALL_PATH} \$OPTIONS
 Restart=on-failure
 RestartSec=2s
 Nice=5
