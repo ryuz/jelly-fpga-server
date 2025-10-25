@@ -861,6 +861,9 @@ struct Args {
     /// Port number to listen on
     #[arg(short, long, default_value_t = 8051)]
     port: u16,
+    /// IP address to bind to (overrides external flag). Example: 192.168.1.10 or 127.0.0.1
+    #[arg(long)]
+    bind: Option<String>,
     #[arg(long)]
     allow_sudo: bool,
 }
@@ -875,7 +878,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let fpga_control_service = JellyFpgaControlService::new(args.verbose);
 
-    let address = if args.external {
+    let address = if let Some(bind_ip) = &args.bind {
+        format!("{}:{}", bind_ip, args.port)
+    } else if args.external {
         format!("0.0.0.0:{}", args.port)
     } else {
         format!("127.0.0.1:{}", args.port)

@@ -152,14 +152,16 @@ impl Accessor {
         size: usize,
     ) -> Result<(), Box<dyn Error>> {
         let (accessor, _) = self.accessor(id)?;
-        match size {
-            0 => accessor.write_mem_usize(offset, data as usize),
-            1 => accessor.write_mem_u8(offset, data as u8),
-            2 => accessor.write_mem_u16(offset, data as u16),
-            4 => accessor.write_mem_u32(offset, data as u32),
-            8 => accessor.write_mem_u64(offset, data),
-            _ => return Err("Invalid size".into()),
-        };
+        unsafe {
+            match size {
+                0 => accessor.write_mem_usize(offset, data as usize),
+                1 => accessor.write_mem_u8(offset, data as u8),
+                2 => accessor.write_mem_u16(offset, data as u16),
+                4 => accessor.write_mem_u32(offset, data as u32),
+                8 => accessor.write_mem_u64(offset, data),
+                _ => return Err("Invalid size".into()),
+            };
+        }
         Ok(())
     }
 
@@ -171,14 +173,16 @@ impl Accessor {
         size: usize,
     ) -> Result<(), Box<dyn Error>> {
         let (accessor, _) = self.accessor(id)?;
-        match size {
-            0 => accessor.write_mem_isize(offset, data as isize),
-            1 => accessor.write_mem_i8(offset, data as i8),
-            2 => accessor.write_mem_i16(offset, data as i16),
-            4 => accessor.write_mem_i32(offset, data as i32),
-            8 => accessor.write_mem_i64(offset, data),
-            _ => return Err("Invalid size".into()),
-        };
+        unsafe{
+            match size {
+                0 => accessor.write_mem_isize(offset, data as isize),
+                1 => accessor.write_mem_i8(offset, data as i8),
+                2 => accessor.write_mem_i16(offset, data as i16),
+                4 => accessor.write_mem_i32(offset, data as i32),
+                8 => accessor.write_mem_i64(offset, data),
+                _ => return Err("Invalid size".into()),
+            };
+        }
         Ok(())
     }
 
@@ -189,14 +193,14 @@ impl Accessor {
         size: usize,
     ) -> Result<u64, Box<dyn Error>> {
         let (accessor, _) = self.accessor(id)?;
-        let data = match size {
+        let data = unsafe { match size {
             0 => accessor.read_mem_usize(offset) as u64,
             1 => accessor.read_mem_u8(offset) as u64,
             2 => accessor.read_mem_u16(offset) as u64,
             4 => accessor.read_mem_u32(offset) as u64,
             8 => accessor.read_mem_u64(offset),
             _ => return Err("Invalid size".into()),
-        };
+        }};
         Ok(data)
     }
 
@@ -207,14 +211,14 @@ impl Accessor {
         size: usize,
     ) -> Result<i64, Box<dyn Error>> {
         let (accessor, _) = self.accessor(id)?;
-        let data = match size {
+        let data = unsafe {match size {
             0 => accessor.read_mem_isize(offset) as i64,
             1 => accessor.read_mem_i8(offset) as i64,
             2 => accessor.read_mem_i16(offset) as i64,
             4 => accessor.read_mem_i32(offset) as i64,
             8 => accessor.read_mem_i64(offset),
             _ => return Err("Invalid size".into()),
-        };
+        }};
         Ok(data)
     }
 
@@ -226,14 +230,16 @@ impl Accessor {
         size: usize,
     ) -> Result<(), Box<dyn Error>> {
         let (accessor, unit) = self.accessor(id)?;
-        match size {
-            0 => accessor.write_mem_usize(reg * unit, data as usize),
-            1 => accessor.write_mem_u8(reg * unit, data as u8),
-            2 => accessor.write_mem_u16(reg * unit, data as u16),
-            4 => accessor.write_mem_u32(reg * unit, data as u32),
-            8 => accessor.write_mem_u64(reg * unit, data as u64),
-            _ => return Err("Invalid size".into()),
-        };
+        unsafe {
+            match size {
+                0 => accessor.write_mem_usize(reg * unit, data as usize),
+                1 => accessor.write_mem_u8(reg * unit, data as u8),
+                2 => accessor.write_mem_u16(reg * unit, data as u16),
+                4 => accessor.write_mem_u32(reg * unit, data as u32),
+                8 => accessor.write_mem_u64(reg * unit, data as u64),
+                _ => return Err("Invalid size".into()),
+            };
+        }
         Ok(())
     }
 
@@ -245,14 +251,16 @@ impl Accessor {
         size: usize,
     ) -> Result<(), Box<dyn Error>> {
         let (accessor, unit) = self.accessor(id)?;
-        match size {
-            0 => accessor.write_mem_isize(reg * unit, data as isize),
-            1 => accessor.write_mem_i8(reg * unit, data as i8),
-            2 => accessor.write_mem_i16(reg * unit, data as i16),
-            4 => accessor.write_mem_i32(reg * unit, data as i32),
-            8 => accessor.write_mem_i64(reg * unit, data),
-            _ => return Err("Invalid size".into()),
-        };
+        unsafe {
+            match size {
+                0 => accessor.write_mem_isize(reg * unit, data as isize),
+                1 => accessor.write_mem_i8(reg * unit, data as i8),
+                2 => accessor.write_mem_i16(reg * unit, data as i16),
+                4 => accessor.write_mem_i32(reg * unit, data as i32),
+                8 => accessor.write_mem_i64(reg * unit, data),
+                _ => return Err("Invalid size".into()),
+            };
+        }
         Ok(())
     }
 
@@ -263,14 +271,14 @@ impl Accessor {
         size: usize,
     ) -> Result<u64, Box<dyn Error>> {
         let (accessor, unit) = self.accessor(id)?;
-        let data = match size {
+        let data = unsafe { match size {
             0 => accessor.read_mem_usize(reg * unit) as u64,
             1 => accessor.read_mem_u8(reg * unit) as u64,
             2 => accessor.read_mem_u16(reg * unit) as u64,
             4 => accessor.read_mem_u32(reg * unit) as u64,
             8 => accessor.read_mem_u64(reg * unit),
             _ => return Err("Invalid size".into()),
-        };
+        }};
         Ok(data)
     }
 
@@ -281,14 +289,14 @@ impl Accessor {
         size: usize,
     ) -> Result<i64, Box<dyn Error>> {
         let (accessor, unit) = self.accessor(id)?;
-        let data = match size {
+        let data = unsafe { match size {
             0 => accessor.read_mem_isize(reg * unit) as i64,
             1 => accessor.read_mem_i8(reg * unit) as i64,
             2 => accessor.read_mem_i16(reg * unit) as i64,
             4 => accessor.read_mem_i32(reg * unit) as i64,
             8 => accessor.read_mem_i64(reg * unit),
             _ => return Err("Invalid size".into()),
-        };
+        }};
         Ok(data)
     }
 
@@ -299,7 +307,7 @@ impl Accessor {
         data: f32,
     ) -> Result<(), Box<dyn Error>> {
         let (accessor, _) = self.accessor(id)?;
-        accessor.write_mem_f32(offset, data);
+        unsafe { accessor.write_mem_f32(offset, data); }
         Ok(())
     }
 
@@ -310,7 +318,7 @@ impl Accessor {
         data: f64,
     ) -> Result<(), Box<dyn Error>> {
         let (accessor, _) = self.accessor(id)?;
-        accessor.write_mem_f64(offset, data);
+        unsafe { accessor.write_mem_f64(offset, data); }
         Ok(())
     }
 
@@ -321,7 +329,7 @@ impl Accessor {
         data: f32,
     ) -> Result<(), Box<dyn Error>> {
         let (accessor, unit) = self.accessor(id)?;
-        accessor.write_mem_f32(reg * unit, data);
+        unsafe { accessor.write_mem_f32(reg * unit, data); }
         Ok(())
     }
 
@@ -332,31 +340,31 @@ impl Accessor {
         data: f64,
     ) -> Result<(), Box<dyn Error>> {
         let (accessor, unit) = self.accessor(id)?;
-        accessor.write_mem_f64(reg * unit, data);
+        unsafe { accessor.write_mem_f64(reg * unit, data); }
         Ok(())
     }
 
     pub unsafe fn read_mem_f32(&mut self, id: Id, offset: usize) -> Result<f32, Box<dyn Error>> {
         let (accessor, _) = self.accessor(id)?;
-        let data = accessor.read_mem_f32(offset);
+        let data = unsafe { accessor.read_mem_f32(offset) };
         Ok(data)
     }
 
     pub unsafe fn read_mem_f64(&mut self, id: Id, offset: usize) -> Result<f64, Box<dyn Error>> {
         let (accessor, _) = self.accessor(id)?;
-        let data = accessor.read_mem_f64(offset);
+        let data = unsafe { accessor.read_mem_f64(offset) };
         Ok(data)
     }
 
     pub unsafe fn read_reg_f32(&mut self, id: Id, reg: usize) -> Result<f32, Box<dyn Error>> {
         let (accessor, unit) = self.accessor(id)?;
-        let data = accessor.read_mem_f32(reg * unit);
+        let data = unsafe { accessor.read_mem_f32(reg * unit)};
         Ok(data)
     }
 
     pub unsafe fn read_reg_f64(&mut self, id: Id, reg: usize) -> Result<f64, Box<dyn Error>> {
         let (accessor, unit) = self.accessor(id)?;
-        let data = accessor.read_mem_f64(reg * unit);
+        let data = unsafe { accessor.read_mem_f64(reg * unit) };
         Ok(data)
     }
 
@@ -367,7 +375,7 @@ impl Accessor {
         data: &[u8],
     ) -> Result<(), Box<dyn Error>> {
         let (accessor, _) = self.accessor(id)?;
-        accessor.copy_from_u8(data.as_ptr(), offset as usize, data.len());
+        unsafe { accessor.copy_from_u8(data.as_ptr(), offset as usize, data.len()); }
         Ok(())
     }
 
@@ -379,7 +387,7 @@ impl Accessor {
     ) -> Result<Vec<u8>, Box<dyn Error>> {
         let (accessor, _) = self.accessor(id)?;
         let mut data = vec![0; size];
-        accessor.copy_to_u8(offset as usize, data.as_mut_ptr(), size);
+        unsafe { accessor.copy_to_u8(offset as usize, data.as_mut_ptr(), size); }
         Ok(data)
     }
 }
