@@ -53,7 +53,7 @@ if [[ ! -f "${ENV_FILE}" ]]; then
 #   OPTIONS="--external --allow-sudo --port 8051 --verbose 1"
 # See: ./jelly-fpga-server --help
 
-OPTIONS="--port 8051 --verbose 0"
+OPTIONS="--port 8051 --external --verbose 0"
 EOF
 else
   echo "Environment file already exists, keeping existing ${ENV_FILE}."
