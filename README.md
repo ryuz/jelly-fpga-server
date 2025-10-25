@@ -41,6 +41,14 @@ sudo apt install -y protobuf-compiler
 ### クロスコンパイル要件（Kria KV260向け）
 - [cross](https://github.com/cross-rs/cross)
 
+
+## バイナリインストール
+
+```bash
+curl -LsSf https://raw.githubusercontent.com/ryuz/jelly-fpga-server/master/binst.sh | sudo bash
+```
+
+
 ## インストール
 
 ### 1. リポジトリのクローン
