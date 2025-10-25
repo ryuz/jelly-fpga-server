@@ -1,0 +1,82 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"   # v0.0.1 などのタグが push されたら起動
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - aarch64-unknown-linux-gnu
+          - arm-unknown-linux-gnueabihf
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Install cross
+        run: cargo install cross --version 0.2.5
+
+      - name: Build with cross
+        run: cross build --release --target ${{ matrix.target }}
+
+      - name: Prepare archive
+        shell: bash
+        run: |
+          mkdir -p dist
+          binary_name="jelly-fpga-loader"
+          release_dir="target/${{ matrix.target }}/release"
+          
+          # バイナリが存在することを確認
+          if [[ ! -f "${release_dir}/${binary_name}" ]]; then
+            echo "Error: Binary ${binary_name} not found in ${release_dir}"
+            exit 1
+          fi
+          
+          archive_name="${binary_name}-${{ matrix.target }}.tar.gz"
+          cd "${release_dir}"
+          tar czf "../../../dist/${archive_name}" "${binary_name}"
+          cd -
+          echo "ASSET=dist/${archive_name}" >> $GITHUB_ENV
+          echo "ARCHIVE_NAME=${archive_name}" >> $GITHUB_ENV
+
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.tar.gz
+          name: Release ${{ github.ref_name }}
+          body: |
+            ## Changes
+            See the [changelog](CHANGELOG.md) for details.
+            
+            ## Downloads
+            - `jelly-fpga-loader-x86_64-unknown-linux-gnu.tar.gz` - Linux x86_64
+            - `jelly-fpga-loader-aarch64-unknown-linux-gnu.tar.gz` - Linux ARM64
+            - `jelly-fpga-loader-arm-unknown-linux-gnueabihf.tar.gz` - Linux ARM
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
