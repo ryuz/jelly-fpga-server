@@ -1,4 +1,4 @@
-[English README.md is here](README.md)
+English version is [here](README_en.md)
 
 # 概要
 
