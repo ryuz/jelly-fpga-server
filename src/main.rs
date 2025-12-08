@@ -250,6 +250,57 @@ impl JellyFpgaControl for JellyFpgaControlService {
         }))
     }
 
+    async fn load_remoteproc(
+        &self,
+        request: Request<LoadRemoteprocRequest>,
+    ) -> Result<Response<BoolResponse>, Status> {
+        let req = request.into_inner();
+        if self.verbose >= 1 {
+            println!(
+                "load_remoteproc: remoteproc_id={} elf_name={}",
+                req.remoteproc_id, req.elf_name,
+            );
+        }
+        let result = fpgautil::load_remoteproc_from_firmware(req.remoteproc_id as usize, &req.elf_name);
+        Ok(Response::new(BoolResponse {
+            result: result.is_ok(),
+        }))
+    }
+
+    async fn start_remoteproc(
+        &self,
+        request: Request<RemoteprocIdRequest>,
+    ) -> Result<Response<BoolResponse>, Status> {
+        let req = request.into_inner();
+        if self.verbose >= 1 {
+            println!(
+                "start_remoteproc: remoteproc_id={}",
+                req.remoteproc_id,
+            );
+        }
+        let result = fpgautil::start_remoteproc(req.remoteproc_id as usize);
+        Ok(Response::new(BoolResponse {
+            result: result.is_ok(),
+        }))
+    }
+
+    async fn stop_remoteproc(
+        &self,
+        request: Request<RemoteprocIdRequest>,
+    ) -> Result<Response<BoolResponse>, Status> {
+        let req = request.into_inner();
+        if self.verbose >= 1 {
+            println!(
+                "stop_remoteproc: remoteproc_id={}",
+                req.remoteproc_id,
+            );
+        }
+        let result = fpgautil::stop_remoteproc(req.remoteproc_id as usize);
+        Ok(Response::new(BoolResponse {
+            result: result.is_ok(),
+        }))
+    }
+
     async fn open_mmap(
         &self,
         request: Request<OpenMmapRequest>,

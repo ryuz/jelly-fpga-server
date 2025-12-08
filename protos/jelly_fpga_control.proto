@@ -20,9 +20,9 @@ service JellyFpgaControl {
     rpc DtsToDtb ( DtsToDtbRequest ) returns (DtsToDtbResponse);
     rpc BitstreamToBin ( BitstreamToBinRequest ) returns (BoolResponse);
 
-    rpc LoadRemoteProc ( LoadRemoteProcRequest ) returns (BoolResponse);
-    rpc StartRemoteProc ( Empty ) returns (BoolResponse);
-    rpc LoadRemoteProc ( Empty ) returns (BoolResponse);
+    rpc LoadRemoteproc ( LoadRemoteprocRequest ) returns (BoolResponse);
+    rpc StartRemoteproc ( RemoteprocIdRequest ) returns (BoolResponse);
+    rpc StopRemoteproc ( RemoteprocIdRequest ) returns (BoolResponse);
 
     rpc OpenMmap     (OpenMmapRequest)    returns (OpenResponse);
     rpc OpenUio      (OpenUioRequest)     returns (OpenResponse);
@@ -125,6 +125,15 @@ message BitstreamToBinRequest {
     string bitstream_name = 1;
     string bin_name = 2;
     string arch = 3;
+}
+
+message LoadRemoteprocRequest {
+    uint64 remoteproc_id = 1;
+    string elf_name = 2;
+}
+
+message RemoteprocIdRequest {
+    uint64 remoteproc_id = 1;
 }
 
 
