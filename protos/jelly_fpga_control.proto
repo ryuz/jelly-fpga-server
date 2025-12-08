@@ -18,6 +18,10 @@ service JellyFpgaControl {
     rpc DtsToDtb ( DtsToDtbRequest ) returns (DtsToDtbResponse);
     rpc BitstreamToBin ( BitstreamToBinRequest ) returns (BoolResponse);
 
+    rpc LoadRemoteProc ( LoadRemoteProcRequest ) returns (BoolResponse);
+    rpc StartRemoteProc ( Empty ) returns (BoolResponse);
+    rpc LoadRemoteProc ( Empty ) returns (BoolResponse);
+
     rpc OpenMmap     (OpenMmapRequest)    returns (OpenResponse);
     rpc OpenUio      (OpenUioRequest)     returns (OpenResponse);
     rpc OpenUdmabuf  (OpenUdmabufRequest) returns (OpenResponse);
