@@ -2,6 +2,8 @@ syntax = "proto3";
 package jelly_fpga_control;
 
 service JellyFpgaControl {
+    rpc GetVersion ( Empty ) returns (VersionResponse);
+
     rpc Reset ( ResetRequest ) returns (BoolResponse);
 
     rpc Load   ( LoadRequest ) returns (LoadResponse);
@@ -58,6 +60,10 @@ message Empty {
 
 message BoolResponse {
     bool result = 1;
+}
+
+message VersionResponse {
+    string version = 1;
 }
 
 message ResetRequest {
