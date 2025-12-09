@@ -9,3 +9,7 @@ _*
 
 *.bit
 *.bin
+
+*.gz
+*.tar
+*.zip

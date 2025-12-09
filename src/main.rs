@@ -32,6 +32,18 @@ impl JellyFpgaControlService {
 
 #[tonic::async_trait]
 impl JellyFpgaControl for JellyFpgaControlService {
+    async fn get_version(
+        &self,
+        _request: Request<Empty>,
+    ) -> Result<Response<VersionResponse>, Status> {
+        if self.verbose >= 1 {
+            println!("get_version");
+        }
+        Ok(Response::new(VersionResponse {
+            version: env!("CARGO_PKG_VERSION").to_string(),
+        }))
+    }
+
     async fn reset(
         &self,
         _request: Request<ResetRequest>,
@@ -233,6 +245,57 @@ impl JellyFpgaControl for JellyFpgaControlService {
         let bit_path = format!("/lib/firmware/{}", req.bitstream_name);
         let bin_path = format!("/lib/firmware/{}", req.bin_name);
         let result = fpgautil::xlnx_bitstream_to_bin(&bit_path, &bin_path, &req.arch);
+        Ok(Response::new(BoolResponse {
+            result: result.is_ok(),
+        }))
+    }
+
+    async fn load_remoteproc(
+        &self,
+        request: Request<LoadRemoteprocRequest>,
+    ) -> Result<Response<BoolResponse>, Status> {
+        let req = request.into_inner();
+        if self.verbose >= 1 {
+            println!(
+                "load_remoteproc: remoteproc_id={} elf_name={}",
+                req.remoteproc_id, req.elf_name,
+            );
+        }
+        let result = fpgautil::load_remoteproc_from_firmware(req.remoteproc_id as usize, &req.elf_name);
+        Ok(Response::new(BoolResponse {
+            result: result.is_ok(),
+        }))
+    }
+
+    async fn start_remoteproc(
+        &self,
+        request: Request<RemoteprocIdRequest>,
+    ) -> Result<Response<BoolResponse>, Status> {
+        let req = request.into_inner();
+        if self.verbose >= 1 {
+            println!(
+                "start_remoteproc: remoteproc_id={}",
+                req.remoteproc_id,
+            );
+        }
+        let result = fpgautil::start_remoteproc(req.remoteproc_id as usize);
+        Ok(Response::new(BoolResponse {
+            result: result.is_ok(),
+        }))
+    }
+
+    async fn stop_remoteproc(
+        &self,
+        request: Request<RemoteprocIdRequest>,
+    ) -> Result<Response<BoolResponse>, Status> {
+        let req = request.into_inner();
+        if self.verbose >= 1 {
+            println!(
+                "stop_remoteproc: remoteproc_id={}",
+                req.remoteproc_id,
+            );
+        }
+        let result = fpgautil::stop_remoteproc(req.remoteproc_id as usize);
         Ok(Response::new(BoolResponse {
             result: result.is_ok(),
         }))

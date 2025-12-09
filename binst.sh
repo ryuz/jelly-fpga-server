@@ -7,7 +7,7 @@ set -euo pipefail
 # Usage:
 #   curl -sL https://raw.githubusercontent.com/ryuz/jelly-fpga-server/master/jelly-fpga-server/binst.sh | sudo bash
 
-VERSION="v0.1.0"
+VERSION="v0.1.1"
 REPO_URL="https://github.com/ryuz/jelly-fpga-server"
 APP_NAME="jelly-fpga-server"
 
