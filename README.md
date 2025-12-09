@@ -163,6 +163,11 @@ sudo systemctl stop jelly-fpga-server
 - `LoadBitstream`: ビットストリームの読み込み
 - `LoadDtbo`: デバイスツリーオーバーレイの読み込み
 
+### Remoteproc制御
+- `LoadRemoteproc`: Remoteprocへのファームウェア読み込み
+- `StartRemoteproc`: Remoteprocの起動
+- `StopRemoteproc`: Remoteprocの停止
+
 ### メモリアクセサ
 - `OpenMmap`: メモリマップドアクセサの作成
 - `OpenUio`: UIOアクセサの作成

@@ -163,6 +163,11 @@ The server provides the following gRPC services:
 - `LoadBitstream`: Load bitstream
 - `LoadDtbo`: Load device tree overlay
 
+### Remoteproc Control
+- `LoadRemoteproc`: Load firmware to Remoteproc
+- `StartRemoteproc`: Start Remoteproc
+- `StopRemoteproc`: Stop Remoteproc
+
 ### Memory Accessors
 - `OpenMmap`: Create memory-mapped accessor
 - `OpenUio`: Create UIO accessor
